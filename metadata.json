@@ -1,0 +1,15 @@
+{
+  "name": "Apex Pro Enterprise",
+  "description": "Sistem Manajemen Lapangan Proyek Jalan Tol Enterprise PT. SHAKA ANUGERAH KARYA",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera",
+    "accelerometer",
+    "gyroscope",
+    "magnetometer",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

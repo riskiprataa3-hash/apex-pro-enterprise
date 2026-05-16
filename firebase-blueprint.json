@@ -1,0 +1,314 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "Data proyek konstruksi dan pemeliharaan",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nama proyek" },
+        "type": { 
+          "type": "string", 
+          "enum": ["asphalt", "inlet", "traffic-sign", "painting", "planting", "other"],
+          "description": "Kategori proyek"
+        },
+        "description": { "type": "string", "description": "Detail deskripsi proyek" },
+        "locationInfo": { "type": "string", "description": "Lokasi Strategis (misal: Jalan Tol Trans Sumatera)" },
+        "regionalInfo": { "type": "string", "description": "Regional (misal: Regional SUMBAGTENG)" },
+        "requiredTools": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "Daftar alat yang wajib ada untuk proyek ini"
+        },
+        "createdAt": { "type": "number", "description": "Timestamp pembuatan" },
+        "ownerId": { "type": "string", "description": "UID pemilik proyek" }
+      },
+      "required": ["name", "type", "createdAt", "ownerId"]
+    },
+    "Entry": {
+      "title": "Project Entry",
+      "description": "Data teknis pengerjaan proyek (Asphalt, Painting, Signs, Planting)",
+      "type": "object",
+      "properties": {
+        "km": { "type": "string", "description": "Lokasi KM" },
+        "kmTo": { "type": "string", "description": "Lokasi KM Akhir (Painting)" },
+        "lajur": { "type": "string", "description": "Identifikasi Lajur (Asphalt)" },
+        "panjang": { "type": "number" },
+        "lebar": { "type": "number" },
+        "tebal": { "type": "number" },
+        "density": { "type": "number" },
+        "volume": { "type": "number" },
+        "tonase": { "type": "number" },
+        "materialType": { "type": "string" },
+        "signType": { "type": "string", "description": "Tipe Rambu (Signs)" },
+        "plantType": { "type": "string", "description": "Tipe Tanaman (Planting)" },
+        "qty": { "type": "number", "description": "Jumlah Unit / Tanaman" },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"] },
+        "description": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "ownerId": { "type": "string" },
+        "photos0": { "type": "array", "items": { "type": "string" } },
+        "photos50": { "type": "array", "items": { "type": "string" } },
+        "photos100": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["km", "timestamp", "ownerId", "status"]
+    },
+    "LoginLog": {
+      "title": "Login Log",
+      "description": "Audit log keamanan login",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "userAgent": { "type": "string" },
+        "locationName": { "type": "string" }
+      },
+      "required": ["email", "userId", "timestamp", "userAgent"]
+    },
+    "Task": {
+      "title": "Work Task",
+      "description": "Tugas pengerjaan dari Admin ke Pelaksana",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "photo": { "type": "string" },
+        "realizationPhoto": { "type": "string" },
+        "assignedTo": { "type": "string", "description": "Email pelaksana" },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"] },
+        "createdAt": { "type": "number" },
+        "completedAt": { "type": "number" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["title", "assignedTo", "status", "createdAt", "createdBy"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Komunikasi operasional antar personil",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "photo": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderEmail": { "type": "string" },
+        "receiverEmail": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["senderId", "senderEmail", "receiverEmail", "timestamp"]
+    },
+    "Notification": {
+      "title": "System Notification",
+      "description": "Notifikasi push internal sistem",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "type": { "type": "string" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["title", "message", "timestamp", "type", "ownerId"]
+    },
+    "InventoryItem": {
+      "title": "Inventory Item",
+      "description": "Data stok material dan peralatan",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "minStock": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["name", "stock", "unit", "updatedAt"]
+    },
+    "HseLog": {
+      "title": "HSE Checklist Log",
+      "description": "Log keamanan harian (APD, Alat, Lingkungan)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "ppeCheck": { "type": "boolean" },
+        "toolCheck": { "type": "boolean" },
+        "environmentCheck": { "type": "boolean" },
+        "inductionConfirmed": { "type": "boolean" },
+        "photo": { "type": "string" }
+      },
+      "required": ["userId", "userEmail", "timestamp", "ppeCheck", "inductionConfirmed"]
+    },
+    "ApdCheck": {
+      "title": "APD Inspection Log",
+      "description": "Laporan inspeksi APD personil",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userName": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "photo": { "type": "string" },
+        "items": { "type": "object" },
+        "status": { "type": "string", "enum": ["Lengkap", "Tidak Lengkap"] },
+        "notes": { "type": "string" }
+      },
+      "required": ["userId", "userEmail", "userName", "timestamp", "items", "status"]
+    },
+    "IncidentReport": {
+      "title": "Incident & Emergency Report",
+      "description": "Laporan kecelakaan kerja atau SOS darurat",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "type": { "type": "string", "enum": ["emergency", "accident", "near-miss"] },
+        "timestamp": { "type": "number" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "description": { "type": "string" },
+        "photo": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "resolved"] }
+      },
+      "required": ["userId", "userEmail", "type", "timestamp", "status"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Informasi tambahan profil user",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "lastInductionAt": { "type": "number" },
+        "isStaff": { "type": "boolean" }
+      },
+      "required": ["email"]
+    },
+    "EquipmentRequest": {
+      "title": "Equipment Request",
+      "description": "Pengajuan alat baru atau perbaikan alat rusak",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "toolName": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["new", "repair", "damaged"] },
+        "status": { "type": "string", "enum": ["pending", "in-process", "approved", "rejected", "completed"] },
+        "timestamp": { "type": "number" },
+        "photo": { "type": "string" },
+        "adminNote": { "type": "string" },
+        "projectId": { "type": "string" }
+      },
+      "required": ["userId", "toolName", "type", "status", "timestamp"]
+    },
+    "Attendance": {
+      "title": "Attendance Log",
+      "description": "Log absen harian (TBM dan Checkout) dengan foto",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userName": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "type": { "type": "string", "enum": ["tbm", "checkout"], "description": "TBM (Shift Start) atau Checkout (Shift End)" },
+        "photo": { "type": "string", "description": "URL foto absen" },
+        "projectId": { "type": "string" },
+        "projectName": { "type": "string" },
+        "location": { "type": "string" },
+        "teamNote": { "type": "string" }
+      },
+      "required": ["userId", "userEmail", "timestamp", "type", "photo"]
+    },
+    "AttendanceSettings": {
+      "title": "Attendance Settings",
+      "description": "Pengaturan lokasi absen dan radius geofencing",
+      "type": "object",
+      "properties": {
+        "allowedLat": { "type": "number" },
+        "allowedLng": { "type": "number" },
+        "radius": { "type": "number" },
+        "enabled": { "type": "boolean" }
+      },
+      "required": ["allowedLat", "allowedLng", "radius", "enabled"]
+    },
+    "CashAdvance": {
+      "title": "Cash Advance (Kasbon)",
+      "description": "Catatan pinjaman kasbon personil yang akan dipotong dari gaji",
+      "type": "object",
+      "properties": {
+        "workerEmail": { "type": "string" },
+        "workerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "note": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "createdByName": { "type": "string" }
+      },
+      "required": ["workerEmail", "workerName", "amount", "timestamp"]
+    }
+  },
+  "firestore": {
+    "app_settings": {
+      "schema": "AttendanceSettings",
+      "description": "Konfigurasi global aplikasi"
+    },
+    "projects": {
+      "schema": "Project",
+      "description": "Koleksi root proyek"
+    },
+    "projects/{projectId}/entries": {
+      "schema": "Entry",
+      "description": "Data teknis per proyek"
+    },
+    "login_logs": {
+      "schema": "LoginLog",
+      "description": "Log aktivitas login"
+    },
+    "tasks": {
+      "schema": "Task",
+      "description": "Daftar tugas lapangan"
+    },
+    "chat_messages": {
+      "schema": "ChatMessage",
+      "description": "Pesan antar personil"
+    },
+    "notifications": {
+      "schema": "Notification",
+      "description": "Notifikasi sistem"
+    },
+    "inventory": {
+      "schema": "InventoryItem",
+      "description": "Stok material"
+    },
+    "hse_logs": {
+      "schema": "HseLog",
+      "description": "Log K3 harian"
+    },
+    "apd_checks": {
+      "schema": "ApdCheck",
+      "description": "Inspeksi APD Berkala"
+    },
+    "incidents": {
+      "schema": "IncidentReport",
+      "description": "Laporan insiden & SOS"
+    },
+    "user_profiles": {
+      "schema": "UserProfile",
+      "description": "Profil personil"
+    },
+    "equipment_requests": {
+      "schema": "EquipmentRequest",
+      "description": "Pengajuan alat/perbaikan"
+    },
+    "attendance": {
+      "schema": "Attendance",
+      "description": "Log absen harian"
+    },
+    "cash_advances": {
+      "schema": "CashAdvance",
+      "description": "Koleksi pinjaman kasbon"
+    }
+  }
+}

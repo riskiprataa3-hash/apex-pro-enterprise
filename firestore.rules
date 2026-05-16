@@ -1,0 +1,479 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserEmail() {
+      return (request.auth != null && request.auth.token != null && request.auth.token.email != null) ? request.auth.token.email.lower() : '';
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        getUserEmail() == 'developmentshaka@gmail.com' ||
+        getUserEmail() == 'admin.shaka01@gmail.com' ||
+        getUserEmail() == 'riskiprataa3@gmail.com' ||
+        (exists(/databases/$(database)/documents/workers/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/workers/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isTrustedAccount() {
+      return getUserEmail() == 'developmentshaka@gmail.com' ||
+             getUserEmail() == 'admin.shaka01@gmail.com' ||
+             getUserEmail() == 'riskiprataa3@gmail.com' ||
+             getUserEmail() == 'pelaksana.shaka@gmail.com';
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && (request.auth.token.email_verified == true || isTrustedAccount());
+    }
+    
+    // --- Connection Check ---
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    function isOwner(data) {
+      return isSignedIn() && data.ownerId == request.auth.uid;
+    }
+
+    function isProjectOwner(projectId) {
+      return isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+    
+    match /inlet_reports/{reportId} {
+      allow read: if isSignedIn();
+      allow write: if true;
+    }
+    
+    // Safe string lower check
+    function matchEmail(dataField, targetEmail) {
+      return dataField is string && dataField.lower() == targetEmail.lower();
+    }
+    
+    // Safe email check in array
+    function userInAssignees(emails, targetEmail) {
+      return emails is list && targetEmail.lower() in emails;
+    }
+
+    // --- Validation Blueprints ---
+
+    function isValidProject(data) {
+      let requiredKeys = ['name', 'type', 'createdAt', 'ownerId'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 15 && 
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.type in ['asphalt', 'inlet', 'traffic-sign', 'painting', 'planting', 'other'] &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 5000)) &&
+             (!('requiredTools' in data) || data.requiredTools is list) &&
+             data.createdAt is number &&
+             data.ownerId is string &&
+             (!('targetQty' in data) || data.targetQty is number) &&
+             (!('isArchived' in data) || data.isArchived is bool) &&
+             (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
+    function isValidEquipmentRequest(data) {
+      let requiredKeys = ['userId', 'toolName', 'type', 'status', 'timestamp'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.userId == request.auth.uid &&
+             data.toolName is string && data.toolName.size() <= 200 &&
+             data.type in ['new', 'repair', 'damaged'] &&
+             data.status in ['pending', 'in-process', 'approved', 'rejected', 'completed'] &&
+             data.timestamp is number &&
+             (!('description' in data) || data.description is string) &&
+             (!('adminNote' in data) || data.adminNote is string) &&
+             (!('projectId' in data) || data.projectId is string) &&
+             (!('userEmail' in data) || data.userEmail is string);
+    }
+
+    function isValidEntry(data) {
+      let requiredKeys = ['km', 'timestamp', 'ownerId', 'status'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 40 && 
+             data.km is string && data.km.size() <= 200 &&
+             data.timestamp is number &&
+             data.ownerId is string &&
+             data.status in ['pending', 'in-progress', 'completed'] &&
+             (!('kmTo' in data) || data.kmTo is string) &&
+             (!('lajur' in data) || data.lajur is string) &&
+             (!('panjang' in data) || data.panjang is number) &&
+             (!('lebar' in data) || data.lebar is number) &&
+             (!('tebal' in data) || data.tebal is number) &&
+             (!('density' in data) || data.density is number) &&
+             (!('volume' in data) || data.volume is number) &&
+             (!('tonase' in data) || data.tonase is number) &&
+             (!('materialType' in data) || data.materialType is string) &&
+             (!('signType' in data) || data.signType is string) &&
+             (!('plantType' in data) || data.plantType is string) &&
+             (!('qty' in data) || data.qty is number) &&
+             (!('description' in data) || data.description is string) &&
+             (!('latitude' in data) || data.latitude is number) &&
+             (!('longitude' in data) || data.longitude is number) &&
+             (!('photos0' in data) || data.photos0 is list) &&
+             (!('photos50' in data) || data.photos50 is list) &&
+             (!('photos100' in data) || data.photos100 is list) &&
+             (!('isArchived' in data) || data.isArchived is bool) &&
+             (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
+    function isValidTask(data) {
+      let requiredKeys = ['title', 'status', 'createdAt', 'createdBy'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 20 && 
+             data.title is string && data.title.size() <= 200 &&
+             data.status in ['pending', 'in-progress', 'completed'] &&
+             (!('priority' in data) || data.priority in ['low', 'medium', 'high']) &&
+             data.createdAt is number &&
+             data.createdBy is string &&
+             (!('isArchived' in data) || data.isArchived is bool) &&
+             (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
+    function isValidChat(data) {
+      let requiredKeys = ['senderId', 'senderEmail', 'receiverEmail', 'content', 'timestamp'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 8 && 
+             data.senderId == request.auth.uid &&
+             data.receiverEmail is string &&
+             data.content is string &&
+             data.timestamp is number;
+    }
+
+    function isValidWorker(data) {
+      let requiredKeys = ['employeeId', 'name', 'email', 'role', 'createdAt'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 18 &&
+             data.employeeId is string && data.employeeId.size() <= 100 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.role in ['admin', 'field-operator'] &&
+             data.createdAt is number &&
+             (!('password' in data) || (data.password is string && data.password.size() <= 100)) &&
+             (!('lastLat' in data) || data.lastLat is number) &&
+             (!('lastLng' in data) || data.lastLng is number) &&
+             (!('lastUpdate' in data) || data.lastUpdate is number) &&
+             (!('isPinnedToLogin' in data) || data.isPinnedToLogin is bool) &&
+             (!('geofenceLimit' in data) || (
+               data.geofenceLimit == null || (
+                 data.geofenceLimit.lat is number &&
+                 data.geofenceLimit.lng is number &&
+                 data.geofenceLimit.radius is number &&
+                 data.geofenceLimit.enabled is bool
+               )
+             ));
+    }
+
+    function isValidInventory(data) {
+      let requiredKeys = ['name', 'stock', 'unit', 'updatedAt'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 10 &&
+             data.name is string &&
+             data.stock is number &&
+             data.unit is string &&
+             data.updatedAt is number;
+    }
+
+    function isValidHse(data) {
+      let requiredKeys = ['userId', 'userEmail', 'timestamp', 'ppeCheck', 'inductionConfirmed'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.userId == request.auth.uid &&
+             (getUserEmail() == '' || data.userEmail.lower() == getUserEmail()) &&
+             data.ppeCheck is bool &&
+             data.inductionConfirmed is bool &&
+             data.timestamp is number;
+    }
+
+    function isValidIncident(data) {
+      let requiredKeys = ['userId', 'userEmail', 'type', 'timestamp', 'status'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.userId == request.auth.uid &&
+             (getUserEmail() == '' || data.userEmail.lower() == getUserEmail()) &&
+             data.type in ['emergency', 'accident', 'near-miss'] &&
+             data.status in ['open', 'resolved'] &&
+             data.timestamp is number;
+    }
+
+    function isValidApdCheck(data) {
+      let requiredKeys = ['userId', 'userEmail', 'userName', 'timestamp', 'items', 'status'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 10 &&
+             data.userId == request.auth.uid &&
+             (getUserEmail() == '' || data.userEmail.lower() == getUserEmail()) &&
+             data.status in ['Lengkap', 'Tidak Lengkap'] &&
+             data.timestamp is number &&
+             data.items is map;
+    }
+
+    function isValidFuelLog(data) {
+      let requiredKeys = ['userId', 'userEmail', 'equipmentName', 'liters', 'timestamp'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 10 &&
+             data.userId == request.auth.uid &&
+             data.equipmentName is string &&
+             data.liters is number &&
+             data.timestamp is number &&
+             (!('photo' in data) || data.photo is string) &&
+             (!('note' in data) || data.note is string) &&
+             (!('projectId' in data) || data.projectId is string);
+    }
+
+    function isValidActivity(data) {
+      let requiredKeys = ['type', 'action', 'title', 'userId', 'userEmail', 'timestamp'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.userId == request.auth.uid &&
+             data.type in ['project', 'entry', 'task', 'fuel', 'hse', 'incident', 'inventory'] &&
+             data.action is string &&
+             data.title is string &&
+             data.timestamp is number &&
+             (!('description' in data) || data.description is string) &&
+             (!('projectId' in data) || data.projectId is string);
+    }
+
+    function isValidAttendanceSettings(data) {
+      let requiredKeys = ['allowedLat', 'allowedLng', 'radius', 'enabled'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() == 4 &&
+             data.allowedLat is number &&
+             data.allowedLng is number &&
+             data.radius is number &&
+             data.enabled is bool;
+    }
+
+    function isValidAttendance(data) {
+      let requiredKeys = ['userId', 'userEmail', 'timestamp', 'type', 'photo'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 12 &&
+             data.userId == request.auth.uid &&
+             data.timestamp is number &&
+             data.type in ['tbm', 'checkout'] &&
+             data.photo is string &&
+             (!('userName' in data) || data.userName is string) &&
+             (!('projectId' in data) || data.projectId is string) &&
+             (!('projectName' in data) || data.projectName is string) &&
+             (!('teamNote' in data) || data.teamNote is string) &&
+             (!('location' in data) || data.location is string);
+    }
+
+    function isValidPresensi(data) {
+      let requiredKeys = ['userId', 'timestamp', 'lat', 'lng'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 10 &&
+             data.userId == request.auth.uid &&
+             data.timestamp is number &&
+             data.lat is number &&
+             data.lng is number &&
+             (!('userName' in data) || data.userName is string);
+    }
+
+    function isValidCashAdvance(data) {
+      let requiredKeys = ['workerEmail', 'workerName', 'amount', 'timestamp'];
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().size() <= 8 &&
+             data.workerEmail is string &&
+             data.workerName is string &&
+             data.amount is number &&
+             data.timestamp is number &&
+             (!('note' in data) || data.note is string) &&
+             (!('createdByName' in data) || data.createdByName is string);
+    }
+
+    // --- Global Safety Net ---
+    match /{document=**} {
+      allow read, write: if isTrustedAccount();
+    }
+    
+    // --- Collection Rules ---
+
+    match /attendance/{logId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidAttendance(incoming());
+    }
+
+    match /presensi/{presensiId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidPresensi(incoming());
+    }
+
+    match /app_settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidAttendanceSettings(incoming());
+    }
+
+    match /inventory/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /hse_logs/{logId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidHse(incoming());
+    }
+
+    match /apd_checks/{checkId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidApdCheck(incoming());
+    }
+
+    match /fuel_logs/{logId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidFuelLog(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    match /activities/{actId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidActivity(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    match /incidents/{incidentId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && (isAdmin() || isEmailVerified()) && isValidIncident(incoming());
+      allow update: if isAdmin();
+    }
+
+    match /user_profiles/{userId} {
+      allow read: if isSignedIn() && (isAdmin() || userId == request.auth.uid);
+      allow write: if isSignedIn() && userId == request.auth.uid;
+    }
+
+    match /equipment_requests/{requestId} {
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && (isAdmin() || isEmailVerified()) && isValidEquipmentRequest(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId) && isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (isAdmin() || isEmailVerified()) && isValidProject(incoming()) && (isAdmin() || incoming().ownerId == request.auth.uid);
+      allow update: if isValidId(projectId) && isSignedIn() && (
+        (isAdmin() && isValidProject(incoming())) ||
+        (isOwner(existing()) && isValidProject(incoming()) && incoming().ownerId == existing().ownerId)
+      );
+      allow delete: if isValidId(projectId) && isAdmin();
+
+      match /entries/{entryId} {
+        allow get: if isValidId(entryId) && isSignedIn();
+        allow list: if isSignedIn();
+        allow create: if isSignedIn() && isValidEntry(incoming()) && (isAdmin() || incoming().ownerId == request.auth.uid);
+        allow update: if isValidId(entryId) && isSignedIn() && (
+          (isAdmin() && isValidEntry(incoming()) && incoming().ownerId == existing().ownerId) ||
+          (isOwner(existing()) && isValidEntry(incoming()) && (
+            (incoming().diff(existing()).affectedKeys().hasOnly(['isArchived'])) ||
+            (incoming().ownerId == existing().ownerId)
+          ))
+        );
+        allow delete: if isValidId(entryId) && isAdmin();
+      }
+    }
+
+
+
+    match /login_logs/{logId} {
+      allow get: if isValidId(logId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /session_logs/{logId} {
+      allow get: if isValidId(logId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /access_keys/{keyId} {
+      allow get, list: if true; 
+      allow update: if true; // Temporary allow for debugging, will harden later
+      allow create, delete: if isAdmin();
+    }
+
+    match /active_sessions/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Collection Group rule for entries
+    match /{path=**}/entries/{entryId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+    }
+
+    match /workers/{workerId} {
+      // Allow read for login lookup before authentication
+      allow get, list: if true;
+      allow create: if isSignedIn() && isValidWorker(incoming()) && (
+        isAdmin() || 
+        (incoming().get('email', '').lower() == getUserEmail())
+      );
+      allow update: if isValidId(workerId) && (isAdmin() || (isSignedIn() && (workerId == request.auth.uid || (existing().get('email', '').lower() == getUserEmail()))));
+      allow delete: if isValidId(workerId) && isAdmin();
+    }
+
+    match /tasks/{taskId} {
+      allow get: if isValidId(taskId) && isSignedIn();
+      allow list: if isSignedIn() && (
+        isAdmin() || 
+        userInAssignees(resource.data.get('assignedToEmail', []), getUserEmail()) ||
+        matchEmail(resource.data.get('assignedToEmail', ''), getUserEmail()) ||
+        matchEmail(resource.data.get('assignedTo', ''), getUserEmail())
+      );
+      allow create: if isAdmin() && isValidTask(incoming()) && incoming().createdBy.lower() == getUserEmail();
+      allow update: if isValidId(taskId) && isSignedIn() && (
+        (isAdmin() && incoming().get('createdBy', '') == existing().get('createdBy', '')) ||
+        ((userInAssignees(existing().get('assignedToEmail', []), getUserEmail()) || matchEmail(existing().get('assignedToEmail', ''), getUserEmail()) || matchEmail(existing().get('assignedTo', ''), getUserEmail())) && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'completedAt', 'realizationPhotos', 'startedAt', 'history']) &&
+         (incoming().get('status', '') != 'completed' || (incoming().get('realizationPhotos', []) is list && incoming().get('realizationPhotos', []).size() > 0)))
+      );
+      allow delete: if isValidId(taskId) && isAdmin();
+    }
+
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && (isAdmin() || matchEmail(resource.data.get('targetEmail', ''), getUserEmail()) || resource.data.get('ownerId', '') == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isAdmin() || matchEmail(resource.data.get('targetEmail', ''), getUserEmail())) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+
+    match /chat_messages/{msgId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /cash_advances/{advanceId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidCashAdvance(incoming());
+    }
+
+    // End of rules
+  }
+}

@@ -1,0 +1,33 @@
+import { initializeApp } from 'firebase/app';
+import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
+import firebaseConfig from '../firebase-applet-config.json';
+
+const app = initializeApp(firebaseConfig);
+
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled in one tab at a a time.
+        console.warn("Firestore persistence failed: Multiple tabs open");
+    } else if (err.code == 'unimplemented') {
+        // The current browser does not support all of the features required to enable persistence
+        console.warn("Firestore persistence failed: Unimplemented in this browser");
+    }
+});
+
+export const auth = getAuth(app);
+export const storage = getStorage(app, firebaseConfig.storageBucket);
+
+// Connection test removed to save quota and prevent startup blocks. 
+// Firestore handles connection status internally.
+async function testConnection() {
+  // No-op to save reads
+}
+testConnection();
+
+
+
+
