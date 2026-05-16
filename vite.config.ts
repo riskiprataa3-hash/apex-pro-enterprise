@@ -12,8 +12,8 @@ export default defineConfig(({mode}) => {
       react(), 
       tailwindcss(),
       VitePWA({
-        registerType: 'prompt',
-        injectRegister: 'auto',
+        registerType: 'autoUpdate',
+        injectRegister: 'script',
         includeAssets: ['icon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png', 'pwa-64x64.png', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon-512x512.png', 'screenshot-wide.svg', 'screenshot-narrow.svg'],
         manifestFilename: 'manifest.json',
         manifest: {

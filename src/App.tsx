@@ -13,7 +13,6 @@ const DashboardPage = lazy(() => import('./components/DashboardPage'));
 const ProjectDetailPage = lazy(() => import('./components/ProjectDetailPage'));
 const ChatCenter = lazy(() => import('./components/ChatCenter').then(module => ({ default: module.ChatCenter })));
 const LiteModePage = lazy(() => import('./components/LiteModePage'));
-const ClockPage = lazy(() => import('./pages/ClockPage'));
 
 const PageLoader = () => (
   <div className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4">
@@ -85,7 +84,6 @@ const MainApp: React.FC = () => {
                       <Route path="/project/:projectId" element={<ProjectDetailPage />} />
                       <Route path="/chat" element={<ChatCenter />} />
                       <Route path="/lite" element={<LiteModePage />} />
-                      <Route path="/clock" element={<ClockPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </motion.main>
