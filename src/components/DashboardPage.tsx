@@ -957,15 +957,6 @@ const DashboardPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleInstallApp()}
-              className="rounded-full w-10 h-10 shadow-md backdrop-blur-md border border-white/10 text-primary animate-pulse"
-              title="Informasi Instalasi Aplikasi"
-            >
-              <Smartphone className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="rounded-full w-10 h-10 shadow-md backdrop-blur-md border border-white/10"
             >
@@ -984,19 +975,6 @@ const DashboardPage: React.FC = () => {
               </Button>
             )}
 
-            {!window.matchMedia('(display-mode: standalone)').matches && !(navigator as any).standalone && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handleInstallApp();
-                }}
-                className="rounded-full h-10 px-4 flex items-center gap-2 border-emerald-500/30 text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 shadow-md animate-pulse"
-              >
-                <Smartphone className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Instal</span>
-              </Button>
-            )}
             <div className="w-px h-6 bg-border mx-2" />
             <div className="flex items-center gap-3 bg-background/50 backdrop-blur-md p-1.5 border border-white/10 rounded-full pr-4 shadow-inner">
               <div className="w-7 h-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-black shadow-lg shadow-primary/30">
@@ -1021,67 +999,6 @@ const DashboardPage: React.FC = () => {
       {/* Main Content Area */}
       <main {...swipeHandlers} className="flex-1 overflow-y-auto px-4 pt-28 pb-32 sm:px-8 sm:pt-36 custom-scrollbar relative z-10 bg-[radial-gradient(ellipse_at_top,rgba(var(--primary-rgb),0.05),transparent)]">
         <div className="max-w-7xl mx-auto">
-          {/* PWA Installation Banner - CRITICAL FOR USER REQUEST */}
-          {!window.matchMedia('(display-mode: standalone)').matches && !(navigator as any).standalone && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mb-10 p-8 rounded-[3rem] bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-3xl relative overflow-hidden group shadow-2xl shadow-emerald-500/10"
-            >
-              <div className="absolute -top-10 -right-10 p-4 opacity-5 pointer-events-none group-hover:scale-125 transition-transform duration-1000 rotate-12">
-                <Smartphone className="w-48 h-48 text-emerald-500" />
-              </div>
-
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
-                <div className="flex items-center gap-6">
-                  <div className="bg-emerald-500/20 p-5 rounded-[2rem] shadow-xl shadow-emerald-500/20 ring-4 ring-emerald-500/10">
-                    <Download className="text-emerald-500 w-8 h-8 animate-bounce" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tighter leading-none mb-2">Instal APK Mandiri (Standalone)</h4>
-                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest max-w-md leading-relaxed">
-                      Transformasikan menjadi aplikasi mandiri tanpa bar pencarian browser. Performa lebih stabil, akses satu klik dari layar utama, dan memori tetap ringan.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                  <Button 
-                    onClick={() => {
-                      handleInstallApp();
-                    }}
-                    className="rounded-2xl h-14 px-10 bg-emerald-500 hover:bg-emerald-600 shadow-xl shadow-emerald-500/30 border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-3"
-                  >
-                    <Smartphone className="w-5 h-5" />
-                    <span className="text-sm font-black uppercase tracking-widest leading-none">Pasang Sekarang</span>
-                  </Button>
-                  
-                  <Button 
-                    variant="outline"
-                    onClick={() => handleInstallApp()}
-                    className="rounded-2xl h-14 px-8 text-[10px] font-black uppercase tracking-widest border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
-                  >
-                    Pelajari Caranya
-                  </Button>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-emerald-500/10 flex flex-wrap justify-center lg:justify-start gap-x-8 gap-y-4">
-                {[
-                  { label: "FULL SCREEN", icon: "âœ”" },
-                  { label: "NATIVE FEEL", icon: "âœ”" },
-                  { label: "TANPA URL BAR", icon: "âœ”" },
-                  { label: "AKSES CEPAT", icon: "âœ”" }
-                ].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-[10px] text-emerald-500 font-black">{feat.icon}</div>
-                    <p className="text-[9px] font-black text-emerald-600/80 tracking-widest uppercase">{feat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
           {/* Email Verification Banner */}
           {user && !isEmailVerified && !isAdmin && (
             <div className="mb-8 p-4 rounded-[2rem] bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -2359,38 +2276,6 @@ const DashboardPage: React.FC = () => {
            </span>
         </motion.button>
       )}
-
-      {/* Quota Block Overlay */}
-      <AnimatePresence>
-        {isQuotaBlocked && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[500] bg-background/95 backdrop-blur-2xl flex items-center justify-center p-4 text-center"
-          >
-             <div className="max-w-md w-full bg-card border-2 border-rose-500/20 rounded-[3rem] p-8 shadow-2xl space-y-6">
-                <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
-                   <ShieldAlert className="w-10 h-10 text-rose-500" />
-                </div>
-                <div className="space-y-2">
-                   <h2 className="text-2xl font-black italic uppercase text-rose-600 tracking-tighter">Akses Dibatasi</h2>
-                   <p className="text-[11px] font-bold text-muted-foreground uppercase leading-relaxed">
-                      {quotaBlockedMessage}
-                   </p>
-                </div>
-                <Button onClick={() => handleLogout()} className="w-full h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase italic shadow-lg shadow-rose-500/20">
-                   Logout & Keluar
-                </Button>
-                <div className="pt-2 border-t border-border/50">
-                  <Button onClick={() => handleForceClearSessions()} variant="outline" className="w-full h-14 rounded-2xl text-muted-foreground hover:text-primary font-bold uppercase text-[10px] tracking-widest border-2">
-                    Akhiri Sesi Lain
-                  </Button>
-                </div>
-             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* HSE Induction Overlay (Removed from startup as per user request) */}
       {/* 

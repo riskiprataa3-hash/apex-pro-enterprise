@@ -12,106 +12,59 @@ export default defineConfig(({mode}) => {
       react(), 
       tailwindcss(),
       VitePWA({
+        injectRegister: 'auto',
         registerType: 'autoUpdate',
-        injectRegister: 'script',
-        includeAssets: ['icon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png', 'pwa-64x64.png', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon-512x512.png', 'screenshot-wide.svg', 'screenshot-narrow.svg'],
-        manifestFilename: 'manifest.json',
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'maskable-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
         manifest: {
-          name: 'Apex Pro Enterprise',
-          short_name: 'Apex Pro',
-          id: 'com.tollguard.apexpro',
-          description: 'Sistem Manajemen Lapangan Enterprise PT. SHAKA ANUGERAH KARYA',
-          theme_color: '#0f172a',
-          background_color: '#0a0a0b',
-          display: 'standalone',
-          orientation: 'portrait',
-          scope: process.env.VITE_BASE_PATH || '/',
-          start_url: process.env.VITE_BASE_PATH || '/',
-          lang: 'id',
-          dir: 'ltr',
-          categories: ['productivity', 'business', 'utilities'],
-          prefer_related_applications: false,
-          display_override: ['standalone', 'window-controls-overlay'],
-          shortcuts: [
+          id: "com.tollguard.apexpro.enterprise.v4",
+          short_name: "Apex Pro",
+          name: "Apex Pro Authorized Ops",
+          description: "Sistem Manajemen Lapangan Enterprise untuk Otorisasi Operasional.",
+          start_url: "/",
+          scope: "/",
+          display: "standalone",
+          orientation: "portrait",
+          theme_color: "#000000",
+          background_color: "#ffffff",
+          icons: [
             {
-              name: 'Dashboard',
-              url: '/',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }]
+              src: "/pwa-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any"
             },
             {
-              name: 'Proyek',
-              url: '/?tab=projects',
-              icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }]
+              src: "/pwa-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any"
+            },
+            {
+              src: "/maskable-icon-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable"
             }
           ],
           screenshots: [
             {
-              src: 'screenshot-wide.svg',
-              sizes: '1280x720',
-              type: 'image/svg+xml',
-              form_factor: 'wide',
-              label: 'Apex Pro Dashboard'
+              src: "/screenshot-wide.svg",
+              sizes: "1280x720",
+              type: "image/svg+xml",
+              form_factor: "wide",
+              label: "Apex Pro Dashboard"
             },
             {
-              src: 'screenshot-narrow.svg',
-              sizes: '720x1280',
-              type: 'image/svg+xml',
-              form_factor: 'narrow',
-              label: 'Apex Pro Mobile'
-            }
-          ],
-          icons: [
-            {
-              src: 'pwa-64x64.png',
-              sizes: '64x64',
-              type: 'image/png',
-              purpose: 'any'
-            },
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any'
-            },
-            {
-              src: 'maskable-icon-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'maskable'
-            }
-          ]
-        },
-        workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-          cleanupOutdatedCaches: true,
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
+              src: "/screenshot-narrow.svg",
+              sizes: "720x1280",
+              type: "image/svg+xml",
+              form_factor: "narrow",
+              label: "Apex Pro Mobile View"
             }
           ]
         },
         devOptions: {
-          enabled: true,
-          type: 'module',
-          navigateFallback: 'index.html'
+          enabled: true
         }
       })
     ],

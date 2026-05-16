@@ -31,14 +31,9 @@ service cloud.firestore {
     function isEmailVerified() {
       return isSignedIn() && (request.auth.token.email_verified == true || isTrustedAccount());
     }
-    
-    // --- Connection Check ---
-    match /test/{docId} {
-      allow read, write: if true;
-    }
 
     function isOwner(data) {
-      return isSignedIn() && data.ownerId == request.auth.uid;
+      return isSignedIn() && (data.get('ownerId', '') == request.auth.uid || data.get('userId', '') == request.auth.uid);
     }
 
     function isProjectOwner(projectId) {
@@ -57,11 +52,6 @@ service cloud.firestore {
       return resource.data;
     }
     
-    match /inlet_reports/{reportId} {
-      allow read: if isSignedIn();
-      allow write: if true;
-    }
-    
     // Safe string lower check
     function matchEmail(dataField, targetEmail) {
       return dataField is string && dataField.lower() == targetEmail.lower();
@@ -72,7 +62,50 @@ service cloud.firestore {
       return emails is list && targetEmail.lower() in emails;
     }
 
-    // --- Validation Blueprints ---
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    match /inlet_reports/{reportId} {
+      allow read: if isSignedIn();
+      allow write: if true;
+    }
+    
+    // --- Pre-Auth Collections ---
+    match /workers/{workerId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidWorker(incoming()) && (
+        isAdmin() || 
+        (incoming().get('email', '').lower() == getUserEmail())
+      );
+      allow update: if isValidId(workerId) && (
+        isAdmin() || 
+        (isSignedIn() && (workerId == request.auth.uid || matchEmail(existing().get('email', ''), getUserEmail())))
+      );
+      allow delete: if isValidId(workerId) && isAdmin();
+    }
+
+    match /access_keys/{keyId} {
+      allow get, list: if isSignedIn(); 
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (incoming().email == 'pelaksana.shaka@gmail.com' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'usedAt']))
+      );
+      allow create, delete: if isAdmin();
+    }
+
+    // --- Global Safety Net ---
+    match /{document=**} {
+      allow read: if isSignedIn() && (isAdmin() || isEmailVerified() || isTrustedAccount());
+      allow write: if isAdmin() || isTrustedAccount();
+    }
+
+    // Collection Group rule for entries (Used by Dashboard)
+    match /{path=**}/entries/{entryId} {
+      allow get, list: if isSignedIn();
+    }
+    
+    // --- Connection Check ---
 
     function isValidProject(data) {
       let requiredKeys = ['name', 'type', 'createdAt', 'ownerId'];
@@ -298,12 +331,6 @@ service cloud.firestore {
              (!('createdByName' in data) || data.createdByName is string);
     }
 
-    // --- Global Safety Net ---
-    match /{document=**} {
-      allow read, write: if isTrustedAccount();
-    }
-    
-    // --- Collection Rules ---
 
     match /attendance/{logId} {
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
@@ -411,32 +438,28 @@ service cloud.firestore {
       allow create: if isSignedIn();
     }
 
-    match /access_keys/{keyId} {
-      allow get, list: if true; 
-      allow update: if true; // Temporary allow for debugging, will harden later
-      allow create, delete: if isAdmin();
-    }
 
     match /active_sessions/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
-    }
-
-    // Collection Group rule for entries
-    match /{path=**}/entries/{entryId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-    }
-
-    match /workers/{workerId} {
-      // Allow read for login lookup before authentication
-      allow get, list: if true;
-      allow create: if isSignedIn() && isValidWorker(incoming()) && (
-        isAdmin() || 
-        (incoming().get('email', '').lower() == getUserEmail())
+      allow read: if isSignedIn() && (isAdmin() || userId == request.auth.uid);
+      allow write: if isSignedIn() && (isAdmin() || userId == request.auth.uid) && (
+        !('sessionId' in incoming()) || (incoming().sessionId is string && incoming().sessionId.size() <= 128)
       );
-      allow update: if isValidId(workerId) && (isAdmin() || (isSignedIn() && (workerId == request.auth.uid || (existing().get('email', '').lower() == getUserEmail()))));
-      allow delete: if isValidId(workerId) && isAdmin();
+    }
+
+    match /chat_messages/{msgId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidChat(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    match /login_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn() && (
+        incoming().userId == request.auth.uid &&
+        incoming().timestamp == request.time.toMillis() &&
+        incoming().email is string &&
+        incoming().type in ['login', 'logout']
+      );
     }
 
     match /tasks/{taskId} {
@@ -461,12 +484,6 @@ service cloud.firestore {
       allow read: if isSignedIn() && (isAdmin() || matchEmail(resource.data.get('targetEmail', ''), getUserEmail()) || resource.data.get('ownerId', '') == request.auth.uid);
       allow create: if isSignedIn();
       allow update: if isSignedIn() && (isAdmin() || matchEmail(resource.data.get('targetEmail', ''), getUserEmail())) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-    }
-
-    match /chat_messages/{msgId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow write: if isAdmin();
     }
 
     match /cash_advances/{advanceId} {

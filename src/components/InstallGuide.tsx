@@ -5,24 +5,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/Base';
 
 export const InstallGuide = () => {
-  const { isInstallModalOpen, setIsInstallModalOpen } = useApp();
+  const { isInstallModalOpen, setIsInstallModalOpen, deferredPrompt, setDeferredPrompt } = useApp();
   const [copied, setCopied] = React.useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBottomBar, setShowBottomBar] = useState(false);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      // Only show bottom bar if we are not already in standalone mode
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
-        setShowBottomBar(true);
-      }
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
+    // Show bottom bar if prompt becomes available and not already in standalone
+    if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+      setShowBottomBar(true);
+    }
+  }, [deferredPrompt]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
@@ -164,102 +156,7 @@ export const InstallGuide = () => {
                     )}
                   </div>
 
-                  {/* Advanced: Play Store / APK Section */}
-                  <div className="p-6 bg-gradient-to-br from-primary/20 to-card rounded-[3rem] border border-primary/30 space-y-4">
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                      <Smartphone className="w-5 h-5 text-primary" />
-                      <h4 className="text-sm font-black uppercase italic text-primary">APK & GOOGLE PLAY</h4>
-                    </div>
-                    
-                    <p className="text-[9px] text-muted-foreground font-bold uppercase leading-relaxed text-center">
-                      Gunakan <span className="text-foreground">GitHub</span> Anda untuk membuat <span className="text-foreground">APK</span> karena scanner PWA Builder sering terblokir sistem keamanan.
-                    </p>
-
-                    <div className="grid grid-cols-1 gap-2">
-                      <Button 
-                        onClick={() => window.open('https://www.pwabuilder.com/', '_blank')}
-                        className="w-full h-14 rounded-2xl bg-slate-900 border border-slate-700 text-white font-black uppercase italic text-[11px] shadow-2xl flex items-center justify-center gap-3 overflow-hidden group"
-                      >
-                        <div className="flex flex-col items-start leading-none">
-                          <span className="text-[7px] font-bold opacity-60 not-italic">BUILD VIA</span>
-                          <span className="text-[12px]">PWA Builder (GitHub)</span>
-                        </div>
-                        <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-primary transition-colors">
-                           <Download className="w-4 h-4" />
-                        </div>
-                      </Button>
-
-                      <div className="bg-muted-foreground/10 p-4 rounded-3xl border border-white/5 space-y-3">
-                         <p className="text-[10px] font-black uppercase text-primary italic">Alur Ekspor & Build APK:</p>
-                         <ol className="text-[9px] font-bold uppercase text-left space-y-3 opacity-90">
-                           <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">1</div>
-                             <span>Buka situs web pembuat APK gratis: <span className="text-foreground underline">WebIntoApp.com</span>.</span>
-                           </li>
-                           <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">2</div>
-                             <span>Di halaman depan, pada kolom "URL", masukkan Link Web Anda: <span className="text-primary tracking-wider break-all bg-black/30 p-1 font-mono">https://riskiprataa3-hash.github.io/apex-pro-enterprise/</span></span>
-                           </li>
-                           <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">3</div>
-                             <span>Isi App Name (misal: "Apex Pro"), Icon, dan biarkan pengaturan lainnya standar &raquo; Klik tombol <span className="text-primary font-black underline">Next / Make App</span>.</span>
-                           </li>
-                           <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">4</div>
-                             <span>Tunggu beberapa saat, lalu klik <span className="text-primary font-black underline">Download APK</span>. Aplikasi siap di-install di HP Anda! 🎉</span>
-                           </li>
-                         </ol>
-                      </div>
-
-                      <Button 
-                        onClick={() => window.open('https://github.com/settings/tokens', '_blank')}
-                        variant="outline"
-                        className="w-full h-10 rounded-xl border-primary/20 text-primary font-black uppercase italic text-[9px]"
-                      >
-                         Panduan Sertifikat Android
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Link Options */}
-                  <div className="space-y-4 pt-4 border-t border-white/5">
-                    <p className="text-[10px] font-black uppercase text-center text-primary tracking-[0.3em]">Link Download Cepat</p>
-                    
-                    <div className="bg-muted p-4 rounded-2xl border border-white/10 flex items-center justify-between gap-4 overflow-hidden">
-                      <div className="flex-1 overflow-hidden">
-                        <p className="text-[10px] font-mono font-bold truncate opacity-60 text-left">{window.location.host}</p>
-                      </div>
-                      <Button 
-                        onClick={handleCopy}
-                        size="sm"
-                        variant="outline"
-                        className="shrink-0 h-10 px-4 rounded-xl border-primary/20 text-primary"
-                      >
-                        {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                        <span className="text-[9px] font-black uppercase italic">{copied ? 'OK' : 'Copy'}</span>
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button 
-                         onClick={() => window.open('whatsapp://send?text=Halo tim Shaka, berikut link download aplikasi Apex Core/Pro: ' + window.location.href)}
-                         variant="outline"
-                         className="h-14 rounded-2xl border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 flex flex-col items-center justify-center gap-1"
-                      >
-                        <Share2 className="w-4 h-4" />
-                        <span className="text-[8px] font-black uppercase tracking-tighter">WA Download</span>
-                      </Button>
-
-                      <Button 
-                        onClick={() => window.open(window.location.href, '_blank')}
-                        className="h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 flex flex-col items-center justify-center gap-1"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        <span className="text-[8px] font-black uppercase tracking-tighter">Link Browser</span>
-                      </Button>
-                    </div>
-                  </div>
-
+                  {/* Footer Close Button */}
                   <Button 
                     onClick={() => setIsInstallModalOpen(false)}
                     className="w-full h-14 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-black uppercase tracking-widest border border-white/5"

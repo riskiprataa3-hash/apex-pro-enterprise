@@ -313,31 +313,6 @@ const LoginPage: React.FC = () => {
                </div>
             </div>
           </Card>
-
-          {/* Quick Install Banner for Web Users */}
-          {!window.matchMedia('(display-mode: standalone)').matches && !(navigator as any).standalone && (
-             <motion.div 
-               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-               className="w-full mt-4"
-             >
-                <div onClick={() => handleInstallApp() }
-                     className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border-2 border-emerald-500/30 rounded-[2.5rem] p-6 cursor-pointer transition-all flex items-center justify-between group shadow-lg shadow-emerald-500/10 relative overflow-hidden backdrop-blur-xl">
-                   <div className="absolute -top-4 -right-4 opacity-5 pointer-events-none rotate-12">
-                     <Download className="w-24 h-24 text-emerald-500" />
-                   </div>
-                   <div className="flex items-center gap-5 relative z-10">
-                      <div className="w-14 h-14 rounded-full bg-emerald-500 text-emerald-950 flex items-center justify-center shadow-lg shadow-emerald-500/40">
-                         <Download className="w-6 h-6 animate-bounce" />
-                      </div>
-                      <div>
-                         <h4 className="text-[13px] font-black uppercase italic tracking-widest text-emerald-500">Pasang Aplikasi Sekarang</h4>
-                         <p className="text-[9px] font-bold text-emerald-500/70 tracking-widest uppercase mt-1 max-w-[200px]">Akses lebih cepat & ringan tanpa buka browser.</p>
-                      </div>
-                   </div>
-                   <ChevronRight className="w-6 h-6 text-emerald-500 group-hover:translate-x-2 transition-transform relative z-10" />
-                </div>
-             </motion.div>
-          )}
         </motion.div>
       </div>
     </div>

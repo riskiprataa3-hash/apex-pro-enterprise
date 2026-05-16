@@ -548,6 +548,7 @@ interface AppContextType {
   isOnline: boolean;
   quotaExceeded: boolean;
   setQuotaExceeded: (v: boolean) => void;
+  isOutsideGeofence: boolean;
   
   isQuotaBlocked: boolean;
   quotaBlockedMessage: string;
@@ -558,6 +559,7 @@ interface AppContextType {
   setShowArchived: (val: boolean) => void;
   handleArchiveEntry: (entryId: string, archive?: boolean) => Promise<void>;
   deferredPrompt: any;
+  setDeferredPrompt: (val: any) => void;
   handleInstallApp: () => Promise<void>;
   isInstallModalOpen: boolean;
   setIsInstallModalOpen: (val: boolean) => void;
@@ -589,12 +591,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
-  const [currentSessionId] = useState(() => Math.random().toString(36).substring(2, 11));
   const [sessionStartTime] = useState(() => Date.now());
   const [isQuotaBlocked, setIsQuotaBlocked] = useState(false);
   const [quotaBlockedMessage, setQuotaBlockedMessage] = useState("");
 
   const [currentUserData, setCurrentUserData] = useState<Worker | null>(null);
+  const [isOutsideGeofence, setIsOutsideGeofence] = useState(false);
 
   const isSuperAdmin = useMemo(() => {
     if (!user) return false;
@@ -633,47 +635,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     
-    const fetchWorkerData = async () => {
-      try {
-        const rawEmail = user.email?.toLowerCase();
-        const mappedEmail = rawEmail === 'adminshaka01@gmail.com' ? 'admin.shaka01@gmail.com' : rawEmail;
-        const q = query(collection(db, 'workers'), where('email', '==', mappedEmail));
-        const snapshot = await getDocs(q);
+    const rawEmail = user.email?.toLowerCase();
+    const mappedEmail = rawEmail === 'adminshaka01@gmail.com' ? 'admin.shaka01@gmail.com' : rawEmail;
+    
+    // Use onSnapshot for real-time updates of worker settings/geofence
+    const q = query(collection(db, 'workers'), where('email', '==', mappedEmail));
+    const unsub = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const docSnap = snapshot.docs[0];
+        const data = docSnap.data() as Worker;
         
-        if (!snapshot.empty) {
-          const docSnap = snapshot.docs[0];
-          const data = docSnap.data() as Worker;
-          
-          // If the doc ID is not the UID, migrate it (for security rules compatibility)
-          if (docSnap.id !== user.uid) {
-            try {
-              await setDoc(doc(db, 'workers', user.uid), { ...data, id: user.uid }, { merge: true });
-              // We don't delete the old one immediately to avoid permission issues during migration
-              // but we prefer the new one
-              setCurrentUserData({ ...data, id: user.uid } as Worker);
-            } catch (migErr) {
-              console.warn('Worker migration failed:', migErr);
-              setCurrentUserData({ id: docSnap.id, ...data } as Worker);
-            }
-          } else {
-            setCurrentUserData({ id: docSnap.id, ...data } as Worker);
-          }
-        }
-      } catch (err: any) {
-        if (err.message?.includes('resource-exhausted')) {
-          console.warn('[QUOTA] Worker profile fetch delayed');
+        // Migration if needed
+        if (docSnap.id !== user.uid) {
+           setDoc(doc(db, 'workers', user.uid), { ...data, id: user.uid }, { merge: true }).catch(e => console.warn('Migration error:', e));
+           setCurrentUserData({ ...data, id: user.uid } as Worker);
         } else {
-          console.warn('Worker fetch failed:', err.message);
+           setCurrentUserData({ id: docSnap.id, ...data } as Worker);
         }
       }
-    };
+    }, (err) => {
+      console.warn('Worker real-time sync failed:', err.message);
+    });
 
-    fetchWorkerData();
+    return () => unsub();
   }, [user]);
 
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+
+  // Global Geofence Enforcement
+  useEffect(() => {
+    if (!user || isAdmin || !currentUserData?.geofenceLimit?.enabled || !location) {
+      setIsOutsideGeofence(false);
+      return;
+    }
+
+    const checkGeofence = () => {
+      const distance = calculateDistance(
+        location.lat,
+        location.lng,
+        currentUserData.geofenceLimit!.lat,
+        currentUserData.geofenceLimit!.lng
+      );
+      
+      if (distance > currentUserData.geofenceLimit!.radius) {
+        setIsOutsideGeofence(true);
+      } else {
+        setIsOutsideGeofence(false);
+      }
+    };
+
+    checkGeofence();
+  }, [user, isAdmin, currentUserData, location]);
 
   const [userCheckIn, setUserCheckIn] = useState<{ timestamp: number; lat: number; lng: number } | null>(null);
 
@@ -1321,12 +1335,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const email = user.email?.toLowerCase() || '';
         const role = isAdmin ? 'admin' : (isSuperAdmin ? 'superadmin' : 'pelaksana');
         
-        await setDoc(doc(db, 'active_sessions', currentSessionId), {
+        await setDoc(doc(db, 'active_sessions', user.uid), {
           uid: user.uid,
           email,
           role,
           startTime: sessionStartTime,
           lastActive: Date.now(),
+          sessionId,
           userAgent: navigator.userAgent
         }, { merge: true });
       } catch (e) {}
@@ -1340,64 +1355,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Optional: cleanup session on logout/close? 
       // Firestore rules might prevent this if user is already null, so we rely on TTL in syncEffect
     };
-  }, [user, isAdmin, isSuperAdmin, currentSessionId, sessionStartTime]);
+  }, [user, isAdmin, isSuperAdmin, sessionId, sessionStartTime]);
 
-  // Enforce User Role Limits
+  // Disable User Role Limits
   useEffect(() => {
-    if (!user || activeSessions.length === 0) {
-      setIsQuotaBlocked(false);
-      return;
-    }
-
-    const email = user.email?.toLowerCase() || '';
-    const isOwner = ['developmentshaka@gmail.com', 'riskiprataa3@gmail.com'].includes(email);
-    
-    // Limits based on user request:
-    // Owner/Develop: 1 user per account (1 session)
-    // Admin: 5 users (sessions)
-    // Pelaksana: 7 users (sessions)
-    
-    const role = isOwner ? 'owner' : (isAdmin ? 'admin' : 'pelaksana');
-    
-    // Find sessions for this specific category
-    let countInMyRole = 0;
-    let mySessionRank = 999;
-    
-    // Categorize sessions
-    const relevantSessions = activeSessions
-      .filter(s => {
-        // Exclude the old structure documents (where doc ID == user UID)
-        if (s.id === s.userId || s.id === s.uid) return false;
-        
-        const sEmail = s.email?.toLowerCase() || '';
-        const sIsOwner = ['developmentshaka@gmail.com', 'riskiprataa3@gmail.com'].includes(sEmail);
-        const sRole = sIsOwner ? 'owner' : (s.role === 'admin' ? 'admin' : 'pelaksana');
-        
-        // Owner limits are strictly per-account.
-        if (role === 'owner') return sEmail === email;
-        return sRole === role;
-      })
-      .sort((a, b) => (a.startTime || 0) - (b.startTime || 0)); // Oldest first
-
-    countInMyRole = relevantSessions.length;
-    
-    // Find my index in active sessions
-    const myIndex = relevantSessions.findIndex(s => s.id === currentSessionId);
-    
-    let limit = 100; // default
-    if (role === 'owner') limit = 1;
-    if (role === 'admin') limit = 5;
-    if (role === 'pelaksana') limit = 7;
-
-    // Block if I'm not in the top N sessions (this handles concurrent limits fairly)
-    if (myIndex >= limit) {
-      setIsQuotaBlocked(true);
-      setQuotaBlockedMessage(`Kuota Sesi Penuh. Akun ${role.toUpperCase()} Anda memiliki batas maksimal ${limit} sesi aktif secara bersamaan.`);
-    } else {
-      setIsQuotaBlocked(false);
-    }
-
-  }, [user, activeSessions, isAdmin, currentSessionId]);
+    setIsQuotaBlocked(false);
+  }, []);
 
   const needsInduction = useMemo(() => {
     if (!user || isAdmin) return false;
@@ -2283,172 +2246,102 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuthError('');
     setIsAuthLoading(true);
     
-    // Explicitly use pelaksana email if form is in pelaksana mode
     const input = isPelaksana ? 'pelaksana.shaka@gmail.com' : email.trim(); 
     const loginEmail = ensureFullEmail(input);
-    let cleanPassword = password.trim();
-    const userInputPassword = cleanPassword;
+    const userInputPassword = password.trim();
+    let firebaseAuthPassword = userInputPassword;
 
-    // Verbose logging for debugging Pelaksana login
-    if (loginEmail === 'pelaksana.shaka@gmail.com') {
+    if (isPelaksana) {
       try {
         const keysRef = collection(db, 'access_keys');
-        // Targeted query for active key instead of fetching all
         const keysQuery = query(keysRef, where('email', '==', 'pelaksana.shaka@gmail.com'), where('status', '==', 'active'));
-        const keysSnap = await getDocs(keysQuery).catch(e => { console.error("keysQuery failed:", e); throw e; });
-
+        const keysSnap = await getDocs(keysQuery);
         const activeKeyDoc = keysSnap.docs[0];
         
-        if (activeKeyDoc) {
-          const keyData = activeKeyDoc.data();
-          if (keyData.password === userInputPassword) {
-            // Expire key after use if one-time
-            if (keyData.type === 'one-time') {
-              updateDoc(doc(db, 'access_keys', activeKeyDoc.id), { status: 'used', usedAt: Date.now() }).catch(() => {});
-            }
+        if (!activeKeyDoc || activeKeyDoc.data().password !== userInputPassword) {
+          setAuthError('Kode Akses (Referral) tidak valid atau sudah kedaluwarsa.');
+          setIsAuthLoading(false);
+          return;
+        }
 
-            // Directly query for the specific worker to get real password
-            const workersRef = collection(db, 'workers');
-            const pQuery = query(workersRef, where('email', '==', 'pelaksana.shaka@gmail.com'));
-            const pSnap = await getDocs(pQuery);
-            const pelaksanaWorker = pSnap.docs[0];
-            
-            if (pelaksanaWorker) {
-              cleanPassword = pelaksanaWorker.data().password.trim();
-            } else {
-              cleanPassword = '089519451234';
-            }
-          }
+        const keyData = activeKeyDoc.data();
+        if (keyData.type === 'one-time') {
+          updateDoc(doc(db, 'access_keys', activeKeyDoc.id), { status: 'used', usedAt: Date.now() }).catch(() => {});
+        }
+
+        const workersRef = collection(db, 'workers');
+        const pQuery = query(workersRef, where('email', '==', 'pelaksana.shaka@gmail.com'));
+        const pSnap = await getDocs(pQuery);
+        if (pSnap.docs[0]) {
+          firebaseAuthPassword = pSnap.docs[0].data().password.trim();
         }
       } catch (err: any) {
-        console.warn("Pelaksana pre-check failed:", err);
+        console.warn("Worker access check error:", err);
+        setAuthError('Gagal memverifikasi kode akses. Coba lagi.');
+        setIsAuthLoading(false);
+        return;
       }
     }
     
     try {
-      // 1. Parallelize looking up the worker record
       const workersRef = collection(db, 'workers');
-      
       const dbSearchEmail = loginEmail === 'adminshaka01@gmail.com' ? 'admin.shaka01@gmail.com' : loginEmail;
-      // Optimize: Search by email and ID in parallel
+      
       const qEmail = query(workersRef, where('email', '==', dbSearchEmail));
       const qId = query(workersRef, where('employeeId', '==', input));
       const qIdLower = query(workersRef, where('employeeId', '==', loginEmail));
 
       const [emailSnap, idSnap, idSnapLower] = await Promise.all([
-        getDocs(qEmail).catch(e => { console.error("qEmail failed:", e); throw e; }),
-        getDocs(qId).catch(e => { console.error("qId failed:", e); throw e; }),
-        getDocs(qIdLower).catch(e => { console.error("qIdLower failed:", e); throw e; })
+        getDocs(qEmail).catch(() => null),
+        getDocs(qId).catch(() => null),
+        getDocs(qIdLower).catch(() => null)
       ]);
 
-      const workerDoc = emailSnap.docs[0] || idSnap.docs[0] || idSnapLower.docs[0];
+      const workerDoc = (emailSnap && emailSnap.docs[0]) || (idSnap && idSnap.docs[0]) || (idSnapLower && idSnapLower.docs[0]);
+      let targetAuthEmail = loginEmail;
       
       if (workerDoc) {
         const workerData = workerDoc.data();
-        
-        // --- Geofence Check ---
-        if (workerData.geofenceLimit?.enabled) {
-          try {
-            const pos: any = await new Promise((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, { 
-                timeout: 10000, 
-                enableHighAccuracy: true 
-              });
-            });
-            const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, workerData.geofenceLimit.lat, workerData.geofenceLimit.lng);
-            if (dist > workerData.geofenceLimit.radius) {
-              setAuthError(`[LOKASI] Akses Ditolak: Anda berada di luar area tugas (${Math.round(dist - workerData.geofenceLimit.radius)}m diluar radius).`);
-              setIsAuthLoading(false);
-              return;
-            }
-          } catch (geoErr) {
-            console.warn("Geofence check failed:", geoErr);
-            setAuthError('[LOKASI] Gagal verifikasi lokasi. Pastikan GPS aktif dan izin lokasi diberikan.');
-            setIsAuthLoading(false);
-            return;
-          }
-        }
-
-        // Check password against Firestore source of truth
         const dbPassword = (workerData.password || '').toString().trim();
-        if (dbPassword !== userInputPassword && dbPassword !== cleanPassword) {
-          console.warn("Firestore password mismatch:", { dbPassword, userInputPassword, cleanPassword });
-          setAuthError('ID / Password salah. Silakan periksa kembali.');
+        const effectivePass = isPelaksana ? firebaseAuthPassword : dbPassword;
+        
+        if (userInputPassword !== dbPassword && userInputPassword !== effectivePass) {
+          setAuthError('ID / Password salah. Periksa kembali kredensial Anda.');
           setIsAuthLoading(false);
           return;
         }
-
-        const targetEmail = ensureFullEmail(workerData.email);
         
-        try {
-          const userCredential = await executeWithRetry(() => signInWithEmailAndPassword(auth, targetEmail, cleanPassword));
-          await recordLoginLog(userCredential.user);
-        } catch (authErr: any) {
-          console.warn("Firebase Auth failed for worker:", authErr.code, authErr.message);
-          if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
-            try {
-              // Account verified in Firestore but doesn't exist or is out of sync in Auth
-              const userCredential = await executeWithRetry(() => createUserWithEmailAndPassword(auth, targetEmail, cleanPassword));
-              await recordLoginLog(userCredential.user);
-            } catch (createErr: any) {
-              if (createErr.code === 'auth/email-already-in-use') {
-                 setAuthError(`[SYNC-ERROR] Akun terdaftar namun sinkronisasi gagal. Hubungi Admin untuk RESET PASSWORD.`);
-              } else {
-                 throw authErr;
-              }
-            }
-          } else {
-            throw authErr;
-          }
-        }
+        targetAuthEmail = ensureFullEmail(workerData.email);
+        firebaseAuthPassword = effectivePass;
       } else {
-        // Fallback for direct login / Admin accounts not in worker list
-        try {
-          const userCredential = await executeWithRetry(() => signInWithEmailAndPassword(auth, loginEmail, cleanPassword));
-          await recordLoginLog(userCredential.user);
-        } catch (authErr: any) {
-          console.warn("Direct Auth failed:", authErr.code, authErr.message);
-          const hardcodedPass: Record<string, string> = {
-            'developmentshaka@gmail.com': 'Riski1310',
-            'admin.shaka01@gmail.com': 'Riski1310',
-            'adminshaka01@gmail.com': 'Riski1310',
-            'riskiprataa3@gmail.com': 'Riski1310',
-            'pelaksana.shaka@gmail.com': '089519451234'
-          };
-
-          const expectedPass = hardcodedPass[loginEmail];
-          if (expectedPass && cleanPassword === expectedPass) {
-            if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
-              try {
-                const userCredential = await executeWithRetry(() => createUserWithEmailAndPassword(auth, loginEmail, cleanPassword));
-                await recordLoginLog(userCredential.user);
-              } catch (createErr: any) {
-                if (createErr.code === 'auth/email-already-in-use') {
-                  setAuthError('Otoritas Admin Valid tapi Gagal Sinkron. Silakan reset password di console jika Riski1310 tidak bekerja.');
-                } else {
-                  throw authErr;
-                }
-              }
-            } else {
-              throw authErr;
-            }
-          } else {
-            throw authErr;
-          }
+        const allowedAdmins = [
+          'developmentshaka@gmail.com',
+          'admin.shaka01@gmail.com',
+          'adminshaka01@gmail.com',
+          'riskiprataa3@gmail.com'
+        ];
+        
+        if (!allowedAdmins.includes(loginEmail)) {
+           setAuthError('Akun tidak terdaftar dalam sistem operasional.');
+           setIsAuthLoading(false);
+           return;
         }
       }
+      
+      const userCredential = await executeWithRetry(() => signInWithEmailAndPassword(auth, targetAuthEmail, firebaseAuthPassword));
+      await recordLoginLog(userCredential.user);
     } catch (err: any) {
       console.error("Login detail err:", err.code || err.message, err);
       const errMsg = err.message?.toLowerCase() || '';
       
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
-        setAuthError('ID / Password salah. [AUTH-FAIL]');
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setAuthError('ID / Password salah. Pastikan kredensial Anda sesuai.');
       } else if (err.code === 'auth/too-many-requests') {
         setAuthError('Terlalu banyak percobaan gagal. Silakan coba lagi nanti.');
       } else if (err.code === 'auth/network-request-failed' || errMsg.includes('network-request-failed')) {
-        setAuthError('Koneksi terputus atau Firebase terblokir. Pastikan internet Anda aktif, atau coba Hapus Cache/Refresh aplikasi. (Network Error)');
+        setAuthError('Koneksi terputus atau Firebase terblokir. (Network Error)');
       } else if (errMsg.includes('quota') || errMsg.includes('resource-exhausted')) {
-        setAuthError('ERROR: QUOTA LIMIT EXCEEDED. Firestore mencapai batas harian. Jika Anda baru saja memperbarui billing, silakan tunggu beberapa menit agar perubahan diterapkan oleh Google.');
+        setAuthError('ERROR: QUOTA LIMIT EXCEEDED. Firestore mencapai batas harian.');
       } else {
         setAuthError(`Error: ${err.message || 'Gagal login'}`);
       }
@@ -2562,7 +2455,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       
       const toDelete: Promise<void>[] = [];
       for (const s of activeSessions) {
-        if (s.id !== currentSessionId && s.id !== user.uid) { // preserve my current session
+        if (s.id !== user.uid) { // preserve my current session entry
            const sEmail = s.email?.toLowerCase() || '';
            const sIsOwner = ['developmentshaka@gmail.com', 'riskiprataa3@gmail.com'].includes(sEmail);
            const sRole = sIsOwner ? 'owner' : (s.role === 'admin' ? 'admin' : 'pelaksana');
@@ -2572,12 +2465,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
       
-      await setDoc(doc(db, 'active_sessions', currentSessionId), {
+      await setDoc(doc(db, 'active_sessions', user.uid), {
           uid: user.uid,
           email,
           role: isAdmin ? 'admin' : (isSuperAdmin ? 'superadmin' : 'pelaksana'),
           startTime: sessionStartTime,
           lastActive: Date.now(),
+          sessionId,
           userAgent: navigator.userAgent
         }, { merge: true });
         
@@ -2610,9 +2504,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           console.warn("Could not invalidate keys during logout:", e);
         }
       }
-      deleteDoc(doc(db, 'active_sessions', user.uid)).catch(() => {});
-      if (currentSessionId) {
-        deleteDoc(doc(db, 'active_sessions', currentSessionId)).catch(() => {});
+      if (user) {
+        deleteDoc(doc(db, 'active_sessions', user.uid)).catch(() => {});
       }
     }
     
@@ -4220,7 +4113,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     handleCreateProject, projectToDelete, setProjectToDelete,
     isDeleteProjectModalOpen, setIsDeleteProjectModalOpen, executeDeleteProject, handleDeleteAllInletData,
     userCheckIn, handleCheckIn, handleCheckOut, equipmentList,
-    isDarkMode, setIsDarkMode, deferredPrompt, handleInstallApp, isInstallModalOpen, setIsInstallModalOpen,
+    isDarkMode, setIsDarkMode,
     dashSearchQuery, setDashSearchQuery, dashDateFilter, setDashDateFilter, filteredProjects,
     km, setKm, kmTo, setKmTo, signType, setSignType, plantType, setPlantType, qty, setQty,
     entryStatus, setEntryStatus, entryDesc, setEntryDesc,
@@ -4244,9 +4137,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     hseLogs, incidents, apdChecks, handleCreateAPDCheck, fuelLogs, activities, cashAdvances, attendanceSettings, handleUpdateAttendanceSettings, equipmentRequests, userProfile, handleCreateHseLog, handleSendSOS, handleReportIncident, handleResolveIncident, handleCreateEquipmentRequest, handleUpdateEquipmentRequestStatus, handleDeleteEquipmentRequest, generateDPR, handleCreateFuelLog, logActivity, handleCreateCashAdvance, handleDeleteCashAdvance,
     handleAddWorker, handleUpdateWorker, handleDeleteWorker, handleAddEntryManual,
     handleSendEmailVerification,
-    isOnline, quotaExceeded, setQuotaExceeded,
+    isOnline,
+    quotaExceeded, setQuotaExceeded,
+    isOutsideGeofence,
     isQuotaBlocked, quotaBlockedMessage, handleForceClearSessions,
     needsInduction,
+    deferredPrompt, setDeferredPrompt, handleInstallApp, isInstallModalOpen, setIsInstallModalOpen,
     editingEntryId, setEditingEntryId, handleEditEntry,
     showArchived, setShowArchived, handleArchiveEntry,
     activeAccessKeys, generatePelaksanaKey,

@@ -163,70 +163,10 @@ export const SettingsView = () => {
               </Button>
             </form>
          </Card>
-
-         {/* PWA Installation */}
-         <Card className="p-8 space-y-6 border-amber-500/20 bg-amber-500/5">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="bg-amber-500/10 p-3 rounded-2xl">
-                <Download className="w-6 h-6 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black uppercase italic tracking-tighter">Instal Aplikasi (Ekuivalen Play Store)</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Teknologi Progressive Web App (PWA)</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-relaxed">
-                  Aplikasi ini menggunakan teknologi PWA yang memungkinkan instalasi langsung ke HP tanpa melalui Play Store.
-                  <br /><br />
-                  <span className="text-amber-500 font-black">CATATAN:</span> Jika Anda membuka aplikasi ini dari dalam lingkungan AI Studio, fitur instalasi otomatis mungkin terhambat. Harap buka di Tab Baru.
-               </p>
-
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline"
-                    onClick={() => {
-                        window.open(window.location.href, '_blank');
-                    }}
-                    className="h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest border-amber-500/30 text-amber-500 hover:bg-amber-500/10 flex items-center justify-center gap-3 shadow-lg shadow-amber-500/5"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                    Buka di Tab Baru
-                  </Button>
-
-                  <Button 
-                    onClick={async () => {
-                      if (handleInstallApp) {
-                          await handleInstallApp();
-                      }
-                    }}
-                    disabled={!deferredPrompt}
-                    className="h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-amber-500/20"
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    {deferredPrompt ? "Install Sekarang" : "Gunakan Tab Baru"}
-                  </Button>
-               </div>
-
-               <div className="p-4 rounded-2xl bg-card border border-border space-y-3">
-                  <p className="text-[9px] font-black uppercase italic text-primary tracking-widest">Panduan Instalasi Manual:</p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-2 text-[9px] text-muted-foreground uppercase font-bold tracking-tight">
-                      <div className="w-1 h-1 rounded-full bg-primary mt-1" />
-                      <span>Android/Chrome: Buka di Tab Baru {">"} Klik menu (Titik 3) {">"} Install App.</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-[9px] text-muted-foreground uppercase font-bold tracking-tight">
-                      <div className="w-1 h-1 rounded-full bg-primary mt-1" />
-                      <span>iPhone/Safari: Buka di Tab Baru {">"} Klik tombol Share {">"} Add to Home Screen.</span>
-                    </li>
-                  </ul>
-               </div>
-            </div>
-         </Card>
         {/* Database Migration */}
         {true && (
-          <Card className="p-8 space-y-6 md:col-span-1 lg:col-span-2 border-primary/20 bg-primary/5">
+          <>
+            <Card className="p-8 space-y-6 md:col-span-1 lg:col-span-2 border-primary/20 bg-primary/5">
             <div className="flex items-center gap-3 mb-2">
               <Download className="w-5 h-5 text-primary" />
               <h3 className="text-sm font-black uppercase italic tracking-tighter">
@@ -295,7 +235,8 @@ export const SettingsView = () => {
               </Button>
             </div>
           </Card>
-        )}
+        </>
+      )}
       </div>
 
     </div>

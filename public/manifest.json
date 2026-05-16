@@ -1,0 +1,48 @@
+{
+  "id": "com.tollguard.apexpro.enterprise.v4",
+  "short_name": "Apex Pro",
+  "name": "Apex Pro Authorized Ops",
+  "description": "Sistem Manajemen Lapangan Enterprise untuk Otorisasi Operasional.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Apex Pro Dashboard"
+    },
+    {
+      "src": "/screenshot-narrow.svg",
+      "sizes": "720x1280",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Apex Pro Mobile View"
+    }
+  ]
+}

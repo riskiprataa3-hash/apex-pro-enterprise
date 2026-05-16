@@ -6,8 +6,15 @@ import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Register service worker
-registerSW({ immediate: true });
+// Register service worker for PWA support
+registerSW({
+  onNeedRefresh() {
+    console.log('Update PWA tersedia kawan');
+  },
+  onOfflineReady() {
+    console.log('Aplikasi siap digunakan offline');
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
