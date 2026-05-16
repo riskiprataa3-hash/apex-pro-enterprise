@@ -193,28 +193,20 @@ export const InstallGuide = () => {
                          <p className="text-[10px] font-black uppercase text-primary italic">Alur Ekspor & Build APK:</p>
                          <ol className="text-[9px] font-bold uppercase text-left space-y-3 opacity-90">
                            <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">0</div>
-                             <span>Sebelum ke PWABuilder, pastikan Aplikasi sudah sukses di build oleh GitHub:</span>
-                           </li>
-                           <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">1</div>
-                             <span>Buka Repo GitHub Anda, masuk ke tab <span className="text-foreground underline">Settings</span>.</span>
+                             <span>Buka situs web pembuat APK gratis: <span className="text-foreground underline">WebIntoApp.com</span>.</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">2</div>
-                             <span>Di menu sebelah kiri, klik tab <span className="text-foreground underline">Pages</span>.</span>
+                             <span>Di halaman depan, pada kolom "URL", masukkan Link Web Anda: <span className="text-primary tracking-wider break-all bg-black/30 p-1 font-mono">https://riskiprataa3-hash.github.io/apex-pro-enterprise/</span></span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">3</div>
-                             <span>Pada bagian "Build and deployment" &raquo; "Source", ubah pilihan dari "Deploy from a branch" menjadi <span className="text-primary font-black underline">"GitHub Actions"</span>.</span>
+                             <span>Isi App Name (misal: "Apex Pro"), Icon, dan biarkan pengaturan lainnya standar &raquo; Klik tombol <span className="text-primary font-black underline">Next / Make App</span>.</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">4</div>
-                             <span>Tunggu beberapa menit sampai ada centang hijau di repo (artinya build pages berhasil).</span>
-                           </li>
-                           <li className="flex gap-2">
-                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">5</div>
-                             <span>Buka <span className="text-foreground underline">PWABuilder.com</span> dan masukkan Link: <span className="text-primary tracking-wider break-all bg-black/30 p-1 font-mono">https://riskiprataa3-hash.github.io/apex-pro-enterprise/</span></span>
+                             <span>Tunggu beberapa saat, lalu klik <span className="text-primary font-black underline">Download APK</span>. Aplikasi siap di-install di HP Anda! 🎉</span>
                            </li>
                          </ol>
                       </div>
