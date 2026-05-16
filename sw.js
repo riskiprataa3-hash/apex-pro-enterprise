@@ -1,4 +1,4 @@
-// Service Worker for PWABuilder detection
+// Service Worker for PWABuilder GitHub Detection
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
