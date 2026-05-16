@@ -194,19 +194,27 @@ export const InstallGuide = () => {
                          <ol className="text-[9px] font-bold uppercase text-left space-y-3 opacity-90">
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">0</div>
-                             <span>Buka <span className="text-foreground underline">Settings (Ikon Gear)</span> &raquo; <span className="text-foreground underline">GitHub</span> &raquo; Klik tombol <span className="text-primary font-black underline">"SIAPKAN DAN TERAPKAN SEMUA PERUBAHAN"</span> (Wajib agar file terkirim).</span>
+                             <span>Sebelum ke PWABuilder, pastikan Aplikasi sudah sukses di build oleh GitHub:</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">1</div>
-                             <span>Buka <span className="text-foreground underline">PWABuilder.com</span>.</span>
+                             <span>Buka Repo GitHub Anda, masuk ke tab <span className="text-foreground underline">Settings</span>.</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">2</div>
-                             <span>Pilih opsi <span className="text-foreground underline">"Package from GitHub"</span> (Ikon GitHub).</span>
+                             <span>Di menu sebelah kiri, klik tab <span className="text-foreground underline">Pages</span>.</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">3</div>
-                             <span>Masukkan link Repo GitHub Anda &raquo; Klik <span className="text-foreground underline">Generate APK</span>.</span>
+                             <span>Pada bagian "Build and deployment" &raquo; "Source", ubah pilihan dari "Deploy from a branch" menjadi <span className="text-primary font-black underline">"GitHub Actions"</span>.</span>
+                           </li>
+                           <li className="flex gap-2">
+                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">4</div>
+                             <span>Tunggu beberapa menit sampai ada centang hijau di repo (artinya build pages berhasil).</span>
+                           </li>
+                           <li className="flex gap-2">
+                             <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">5</div>
+                             <span>Buka <span className="text-foreground underline">PWABuilder.com</span> dan masukkan Link: <span className="text-primary tracking-wider break-all bg-black/30 p-1 font-mono">https://riskiprataa3-hash.github.io/apex-pro-enterprise/</span></span>
                            </li>
                          </ol>
                       </div>
