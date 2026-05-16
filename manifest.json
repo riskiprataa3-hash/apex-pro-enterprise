@@ -1,0 +1,44 @@
+{
+  "name": "Apex Pro Enterprise",
+  "short_name": "Apex Pro",
+  "id": "com.tollguard.apexpro",
+  "description": "Sistem Manajemen Lapangan Enterprise PT. SHAKA ANUGERAH KARYA",
+  "theme_color": "#0f172a",
+  "background_color": "#0a0a0b",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "public/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "public/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "public/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "public/screenshot-wide.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Apex Pro Dashboard"
+    }
+  ]
+}

@@ -194,7 +194,7 @@ export const InstallGuide = () => {
                          <ol className="text-[9px] font-bold uppercase text-left space-y-3 opacity-90">
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">0</div>
-                             <span>Klik <span className="text-foreground underline">Settings (Ikon Gear)</span> di AI Studio &raquo; Klik <span className="text-foreground underline">Export to GitHub</span> (Wajib dilakukan dulu).</span>
+                             <span>Buka <span className="text-foreground underline">Settings (Ikon Gear)</span> &raquo; <span className="text-foreground underline">GitHub</span> &raquo; Klik tombol <span className="text-primary font-black underline">"SIAPKAN DAN TERAPKAN SEMUA PERUBAHAN"</span> (Wajib agar file terkirim).</span>
                            </li>
                            <li className="flex gap-2">
                              <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[7px] text-white shrink-0">1</div>
