@@ -5,38 +5,52 @@ interface ApexLogoProps {
   className?: string;
   size?: number;
   showText?: boolean;
+  text?: string;
 }
 
-export const ApexLogo: React.FC<ApexLogoProps> = ({ className = "w-10 h-10", size = 24, showText = false }) => {
+export const ApexLogo: React.FC<ApexLogoProps> = ({ className = "w-10 h-10", size = 24, showText = false, text = "CPO" }) => {
+  // Added hideText logic via props if needed, but keeping interface simple
+  const isHiddenText = (className as any).includes('hideText');
+
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div className="relative group cursor-pointer">
-        {/* Glow effect */}
-        <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse group-hover:bg-primary/50 transition-all duration-500" />
+    <div className={`flex flex-col items-center justify-center gap-1.5 ${className}`}>
+      <svg
+        width={size * 2}
+        height={size * 2}
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-xl hover:scale-105 transition-transform"
+      >
+        <defs>
+          <linearGradient id="metallicBlue" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stopColor="#87a5cc" />
+            <stop offset="50%" stopColor="#2e4c70" />
+            <stop offset="100%" stopColor="#10233b" />
+          </linearGradient>
+          <linearGradient id="metallicRed" x1="0%" y1="20%" x2="100%" y2="80%">
+            <stop offset="0%" stopColor="#cf4d63" />
+            <stop offset="50%" stopColor="#8c1c2f" />
+            <stop offset="100%" stopColor="#4a0f18" />
+          </linearGradient>
+          <filter id="bevelResult" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur" />
+            <feOffset dx="1.5" dy="1.5" result="offsetBlur" />
+            <feComposite in="SourceGraphic" in2="offsetBlur" operator="over" />
+          </filter>
+        </defs>
         
-        {/* Outer Ring */}
-        <div className="relative bg-background border-2 border-primary w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden rotate-45 group-hover:rotate-90 transition-all duration-700 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
-          {/* Inner Content */}
-          <ShieldCheck 
-            size={size * 1.5} 
-            className="text-primary -rotate-45 group-hover:-rotate-90 transition-all duration-700" 
-          />
-          
-          {/* Decorative scan line */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/10 to-transparent w-full h-[2px] animate-scan pointer-events-none" />
-        </div>
-      </div>
-      
-      {showText && (
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none text-foreground">
-            Toll-Guard<br/>
-            <span className="text-primary">Apex Pro.</span>
-          </h1>
-          <p className="text-[7px] font-bold text-muted-foreground uppercase tracking-[0.4em] mt-1 leading-none">
-            Infrastructure Monitoring
-          </p>
-        </div>
+        {/* Red orbiting rings */}
+        <path d="M 15 55 Q 15 25 80 35" fill="none" stroke="url(#metallicRed)" strokeWidth="8" strokeLinecap="round" filter="url(#bevelResult)" />
+        <path d="M 85 45 Q 85 75 20 65" fill="none" stroke="url(#metallicRed)" strokeWidth="8" strokeLinecap="round" filter="url(#bevelResult)" />
+        
+        {/* Main 'S' Shape */}
+        <path d="M 70 30 C 70 15, 30 15, 30 35 C 30 55, 70 45, 70 65 C 70 85, 30 85, 30 70" fill="none" stroke="url(#metallicBlue)" strokeWidth="22" strokeLinecap="round" filter="url(#bevelResult)" />
+      </svg>
+      {showText && !isHiddenText && (
+         <span className="font-extrabold tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-b from-gray-700 to-gray-900 drop-shadow-sm" style={{ fontSize: size * 0.5 }}>
+            {text}
+         </span>
       )}
     </div>
   );

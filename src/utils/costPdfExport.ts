@@ -16,7 +16,7 @@ export const generateCostPdf = () => {
   doc.setDrawColor(200, 200, 200);
   doc.line(14, 34, 196, 34);
 
-  // Bagian 1: Penggunaan Data (Storage)
+  // Bagian 1: Useran Data (Storage)
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
   doc.text('1. Biaya Penyimpanan Server (Firestore Storage)', 14, 45);
@@ -24,12 +24,12 @@ export const generateCostPdf = () => {
   doc.setTextColor(80, 80, 80);
   doc.text('- Setiap data berisi 3 foto Base64 (~450 KB per dokumen).', 14, 52);
   doc.text('- 1838 data x 450 KB = ~827 MB per hari.', 14, 57);
-  doc.text('- 1 Bulan (30 hari) = ~24.8 GB data baru.', 14, 62);
+  doc.text('- 1 Month (30 hari) = ~24.8 GB data baru.', 14, 62);
   doc.text('- Harga Firestore: $0.18 / GB (setelah 1GB Free Tier).', 14, 67);
   doc.setTextColor(220, 38, 38);
-  doc.text('Estimasi Bulan ke-1: ~ $4.46 (Rp 71.000 / bulan)', 14, 74);
+  doc.text('Estimasi Month ke-1: ~ $4.46 (Rp 71.000 / bulan)', 14, 74);
   doc.setTextColor(150, 100, 100);
-  doc.text('*Catatan: Biaya akan naik bulan depannya karena data menumpuk (Bln 2: Rp140rb, Bln 3: Rp210rb).', 14, 79);
+  doc.text('*Notes: Biaya akan naik bulan depannya karena data menumpuk (Bln 2: Rp140rb, Bln 3: Rp210rb).', 14, 79);
 
   // Bagian 2: Bahaya "TANPA LIMIT"
   doc.setFontSize(14);
@@ -57,7 +57,7 @@ export const generateCostPdf = () => {
 
   doc.setFontSize(12);
   doc.setTextColor(220, 38, 38);
-  doc.text('Total Estimasi JIKA TANPA LIMIT: ~ Rp 6.600.000 / Bulan', 14, tempY);
+  doc.text('Total Estimasi JIKA TANPA LIMIT: ~ Rp 6.600.000 / Month', 14, tempY);
 
   doc.setFontSize(10);
   doc.setTextColor(40, 40, 40);

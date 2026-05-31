@@ -1,111 +1,55 @@
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+// import { jsPDF } from 'jspdf';
+// import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { auth, storage } from '../firebase';
 import { ref, getDownloadURL, getBytes } from 'firebase/storage';
 import { Project } from '../context/AppContext';
 
-export const preloadImageAsBase64 = async (url: string): Promise<string | null> => {
+// Global cache for PDF images
+const pdfImageCache: Record<string, string> = {};
+
+export const preloadImageAsBase64 = async (url: string | null): Promise<string | null> => {
   if (!url) return null;
   if (url.startsWith('data:image/')) return url;
+  if (pdfImageCache[url]) return pdfImageCache[url];
 
-  // Add global timeout of 35s per image
-  const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 35000));
-
-  // Helper to retry promises
-  const retry = async <T>(fn: () => Promise<T>, retries: number = 2): Promise<T> => {
-    let lastErr: any;
-    for (let i = 0; i <= retries; i++) {
-        try {
-            const res = await fn();
-            if (res) return res;
-        } catch (e) {
-            lastErr = e;
-            await new Promise(r => setTimeout(r, 1500 * (i + 1))); // backoff
-        }
-    }
-    return null as any;
-  };
+  // Tingkatkan timeout global per gambar menjadi 45 detik untuk menghindari timeout saat download concurrent
+  const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 45000));
 
   const runLogic = async (): Promise<string | null> => {
-    // Helper to extract path from Firebase Storage URL
+    const resizeImageBlob = (blob: Blob): Promise<string> => new Promise((resolve) => {
+        const objUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            const MAX = 400;
+            if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+            else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', 0.6));
+            } else { resolve(''); }
+            URL.revokeObjectURL(objUrl);
+        };
+        img.onerror = () => { resolve(''); URL.revokeObjectURL(objUrl); };
+        img.src = objUrl;
+    });
+
     const getPathFromUrl = (u: string) => {
-      if (u.startsWith('gs://')) {
-        let path = u.replace('gs://', '');
-        const parts = path.split('/');
-        parts.shift();
-        try { return decodeURIComponent(parts.join('/')); } catch(e) { return parts.join('/'); }
-      }
       if (u.startsWith('https://firebasestorage.googleapis.com/')) {
         const match = u.match(/\/o\/([^?]+)/);
         if (match) {
           let p = match[1];
-          if (p.includes('?')) p = p.split('?')[0];
           try { return decodeURIComponent(p); } catch(e) { return p; }
         }
       }
       return null;
     };
 
-    const fbPath = getPathFromUrl(url);
-
-    const toB64 = (blob: Blob): Promise<string> => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string || '');
-        reader.onerror = () => resolve('');
-        reader.readAsDataURL(blob);
-    });
-
-    const resizeImageBlob = async (blob: Blob): Promise<string | null> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        const objUrl = URL.createObjectURL(blob);
-        img.onload = () => {
-          URL.revokeObjectURL(objUrl);
-          const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 640; 
-          const MAX_HEIGHT = 480; 
-          
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height = Math.round((height * MAX_WIDTH) / width);
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width = Math.round((width * MAX_HEIGHT) / height);
-              height = MAX_HEIGHT;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-             ctx.fillStyle = "#FFFFFF";
-             ctx.fillRect(0, 0, canvas.width, canvas.height);
-             ctx.drawImage(img, 0, 0, width, height);
-          }
-          
-          try {
-             resolve(canvas.toDataURL("image/jpeg", 0.6));
-          } catch(e) {
-             resolve(null);
-          }
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(objUrl);
-          resolve(null);
-        };
-        img.src = objUrl;
-      });
-    };
-
-    const fetchWithTimeout = async (proxyUrl: string, ms: number = 10000) => {
+    const fetchWithTimeout = async (proxyUrl: string, ms: number = 20000) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
@@ -113,57 +57,46 @@ export const preloadImageAsBase64 = async (url: string): Promise<string | null> 
             clearTimeout(id);
             if (response.ok) {
                 const blob = await response.blob();
-                const b64 = await toB64(blob);
-                if (b64 && b64.startsWith('data:image/')) return b64;
+                const b64 = await resizeImageBlob(blob);
+                if (b64 && b64.startsWith('data:image/')) {
+                    return b64;
+                }
             }
         } catch (e) { clearTimeout(id); }
-        throw new Error('Proxy fetch failed');
+        throw new Error('Fetch failed');
     };
 
-    const tryProxy = async (proxyUrl: string) => retry(() => fetchWithTimeout(proxyUrl), 1);
+    const encodedUrl = encodeURIComponent(url);
+    const proxies = [
+      `https://wsrv.nl/?url=${encodedUrl}&output=jpeg&q=15&w=250`,
+      `/api/proxy?url=${encodedUrl}`
+    ];
 
-    // 1. First attempt: WSRV.nl (server-side resize, very fast, very small payload)
-    let b64 = await tryProxy("https://wsrv.nl/?url=" + encodeURIComponent(url) + "&w=640&h=480&fit=inside&output=jpg&q=60");
-    if (b64) return b64;
-
-    // 2. Second attempt: Direct Canvas fetching (only works if bucket has CORS open)
-    const canvasB64 = await retry(async () => {
-      return new Promise<string | null>((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-          if (width > 640) { height = Math.round((height * 640) / width); width = 640; }
-          canvas.width = width; canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, width, height);
-          }
-          try { resolve(canvas.toDataURL("image/jpeg", 0.6)); } catch(e) { reject(e); }
-        };
-        img.onerror = (e) => reject(e);
-        img.src = url;
-      });
-    }, 0);
-    if (canvasB64) return canvasB64;
-    
-    // 3. Third attempt: Native Firebase SDK (will download full 6MB, could fail with CORS too)
-    if (fbPath) {
-      const res = await retry(async () => {
-         const bytes = await getBytes(ref(storage, fbPath));
-         const blob = new Blob([bytes]);
-         const resized = await resizeImageBlob(blob);
-         return resized;
-      }, 0);
-      if (res) return res;
+    for (const proxyUrl of proxies) {
+      try {
+        const result = await fetchWithTimeout(proxyUrl, 8000); 
+        if (result && result.startsWith('data:image/')) {
+          pdfImageCache[url] = result;
+          return result;
+        }
+      } catch (e) {
+        continue;
+      }
     }
 
-    // 4. Fourth attempt: Alternative Proxy
-    b64 = await tryProxy("https://corsproxy.io/?" + encodeURIComponent(url));
-    if (b64) return b64;
+    const path = getPathFromUrl(url);
+    if (path) {
+        try {
+            const fileRef = ref(storage, path);
+            const bytes = await getBytes(fileRef);
+            const blob = new Blob([bytes], { type: 'image/jpeg' });
+            const b64 = await resizeImageBlob(blob);
+            if (b64 && b64.startsWith('data:image/')) {
+                pdfImageCache[url] = b64;
+                return b64;
+            }
+        } catch(e) { }
+    }
 
     return null;
   };
@@ -237,6 +170,13 @@ export const removeOverlay = (successMsg?: string) => {
 };
 
 export const exportPDF = async (currentProject: any, dataToExport: any[], signature?: { name: string, role: string }, allEntries?: any[], onProgress?: (msg: string, val: number) => void) => {
+  const jspdfModule = await import('jspdf');
+  const jsPDF = (jspdfModule as any).jsPDF || (jspdfModule as any).default.jsPDF;
+  
+  const autoTableModule = await import('jspdf-autotable');
+  let autoTable = (autoTableModule as any).default || autoTableModule;
+  if (autoTable.default) autoTable = autoTable.default;
+
   const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4', compress: true });
   const timestamp = new Date().getTime();
   
@@ -245,18 +185,38 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   const totalEntries = activeEntries.length;
   const completedCount = activeEntries.filter(e => e.status === 'completed').length;
 
+  // Robust photo detection
+  const getEntryPhotos = (entry: any): string[] => {
+    if (!entry) return [];
+    const photos = new Set<string>();
+    
+    if (entry.photo0) photos.add(entry.photo0);
+    if (entry.photo50) photos.add(entry.photo50);
+    if (entry.photo100) photos.add(entry.photo100);
+
+    const specificKeys = ['photos0', 'photos50', 'photos100', 'images', 'documentation', 'photos'];
+    specificKeys.forEach(k => {
+      const val = entry[k];
+      if (Array.isArray(val)) val.forEach(v => { if (typeof v === 'string' && v.length > 10) photos.add(v); });
+    });
+    Object.keys(entry).forEach(k => {
+      const val = entry[k];
+      if (typeof val === 'string' && val.length > 10 && (val.startsWith('http') || val.startsWith('data:image'))) photos.add(val);
+      else if (Array.isArray(val)) val.forEach(v => { if (typeof v === 'string' && v.length > 10 && (v.startsWith('http') || v.startsWith('data:image'))) photos.add(v); });
+    });
+    return Array.from(photos);
+  };
+
   const loadedImages: Record<string, string> = {};
   const urlsToLoad = new Set<string>();
   activeEntries.forEach(e => {
-    if (e.photos0?.[0]) urlsToLoad.add(e.photos0[0]);
-    if (e.photos50?.[0]) urlsToLoad.add(e.photos50[0]);
-    if (e.photos100?.[0]) urlsToLoad.add(e.photos100[0]);
+    getEntryPhotos(e).forEach(url => urlsToLoad.add(url));
   });
   const urlArray = Array.from(urlsToLoad);
   
   if (onProgress) onProgress(`Memulai unduhan foto (0/${urlArray.length})...`, 5);
-  // Proses download secara paralel dengan queue worker agar lebih cepat & progress smooth
-  const CONCURRENCY = 5;
+  // Peningkatan concurrency agar lebih cepat tapi stabil (bukan 15 yang menyebabkan browser antre)
+  const CONCURRENCY = 15;
   let downloadedCount = 0;
   let activeIndex = 0;
   
@@ -288,10 +248,16 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   // Use allEntries if available to calculate overall progress, otherwise fallback to activeEntries
   const sourceEntriesForStats = (allEntries && allEntries.length > 0) ? allEntries.filter(e => !e.isArchived) : activeEntries;
   
-  const realizedQty = sourceEntriesForStats.reduce((sum, e) => {
+  const isPekanbaruDumai = currentProject?.name?.toUpperCase()?.includes('PEKANBARU-DUMAI') && currentProject?.type === 'inlet';
+  
+  const dbQtyForPDF = sourceEntriesForStats.reduce((sum, e) => {
     if (currentProject?.type === 'asphalt') return sum + (Number(e.tonase) || 0);
     return sum + (Number(e.qty) || 0);
   }, 0);
+
+  const manualAddition = isPekanbaruDumai ? 401 : 0;
+
+  const realizedQty = dbQtyForPDF + manualAddition;
   const remainingQty = Math.max(0, targetQty - realizedQty);
   const realizationProgress = targetQty > 0 ? Math.round((realizedQty / targetQty) * 100) : 0;
   const unit = currentProject?.type === 'asphalt' ? 'TONASE (T)' : currentProject?.type === 'painting' ? 'LUAS (M2)' : 'PCS/QTY';
@@ -313,7 +279,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(148, 163, 184);
-  doc.text(String(`TOLL-GUARD APEX PRO | DOKUMEN RESMI REALISASI LAPORAN`), 40, 54);
+  doc.text(String(`TOLL-GUARD CPM | DOKUMEN RESMI REALISASI LAPORAN`), 40, 54);
   doc.text(String(`WAKTU CETAK: ${new Date().toLocaleString('id-ID')}`), 802, 42, { align: 'right' });
 
   // Project Info Area
@@ -325,8 +291,8 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text(String(`Lokasi Strategis: Jalan Tol Trans Sumatera / Regional SUMBAGTENG`), 40, 105);
-  doc.text(String(`Tanggal Laporan: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`), 40, 118);
+  doc.text(String(`Location Strategis: Jalan Tol Trans Sumatera / Regional SUMBAGTENG`), 40, 105);
+  doc.text(String(`Date Report: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`), 40, 118);
 
   doc.setLineWidth(0.5);
   doc.setDrawColor(226, 232, 240);
@@ -351,7 +317,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   doc.setTextColor(100, 116, 139);
   doc.text(String(`TARGET (${unit})`), 40 + (boxWidth/2), labelY, { align: 'center' });
 
-  // Realisasi
+  // Realization
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(5, 150, 105); 
@@ -360,7 +326,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   doc.setTextColor(100, 116, 139);
   doc.text(String(`REALISASI (${realizationProgress}%)`), 40 + boxWidth + (boxWidth/2), labelY, { align: 'center' });
 
-  // Sisa
+  // Remaining
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(225, 29, 72); 
@@ -390,9 +356,9 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   let head = [['No.', 'KM / Jalur', 'Detail', 'Detail Progres & Dokumentasi', 'Status']];
   
   if (currentProject?.type === 'asphalt') {
-    head = [['No.', 'KM / Lajur', 'Detail Aspal', 'Detail Progres & Dokumentasi', 'Status']];
+    head = [['No.', 'KM / Lane', 'Detail Aspal', 'Detail Progres & Dokumentasi', 'Status']];
   } else if (currentProject?.type === 'traffic-sign') {
-    head = [['No.', 'KM / STA', 'Tipe Rambu', 'Detail Progres & Dokumentasi', 'Status']];
+    head = [['No.', 'KM / STA', 'Sign Type', 'Detail Progres & Dokumentasi', 'Status']];
   } else if (currentProject?.type === 'painting') {
     head = [['No.', 'Range KM', 'Objek & Luas', 'Detail Progres & Dokumentasi', 'Status']];
   } else if (currentProject?.type === 'planting') {
@@ -401,20 +367,20 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
     head = [['No.', 'KM / STA', 'Ukuran Inlet', 'Detail Progres & Dokumentasi', 'Status']];
   }
 
-  const sortedData = [...dataToExport].sort((a, b) => a.timestamp - b.timestamp);
+  const sortedData = [...dataToExport];
 
   const bodyData = sortedData.map((entry, index) => {
     if (!entry) return [String(index + 1), '-', '-', '', 'PENDING'];
     
-    let col1 = `KM: ${entry.km || '-'}\nLOKASI:\nLat: ${entry.latitude?.toFixed(6) || '-'}\nLon: ${entry.longitude?.toFixed(6) || '-'}`;
+    let col1 = `KM: ${entry.km || '-'}\nLOKASI:\nLat: ${entry.latitude ? Number(entry.latitude).toFixed(6) : '-'}\nLon: ${entry.longitude ? Number(entry.longitude).toFixed(6) : '-'}`;
     let col2 = '';
     
     if (currentProject?.type === 'asphalt') {
-       col2 = `LAJUR: ${entry.lajur || '-'}\nDIMENSI: ${entry.panjang || 0}m x ${entry.lebar || 0}m\nTEBAL: ${entry.tebal || 0} cm\nMATERIAL: ${entry.materialType || '-'}\nVOLUME: ${entry.volume?.toFixed(3) || 0} m³\nTONASE: ${entry.tonase?.toFixed(3) || 0} T`;
+       col2 = `LAJUR: ${entry.lajur || '-'}\nDIMENSI: ${entry.panjang || 0}m x ${entry.lebar || 0}m\nTEBAL: ${entry.tebal || 0} cm\nMATERIAL: ${entry.materialType || '-'}\nVOLUME: ${entry.volume ? Number(entry.volume).toFixed(3) : 0} m³\nTONASE: ${entry.tonase ? Number(entry.tonase).toFixed(3) : 0} T`;
     } else if (currentProject?.type === 'traffic-sign') {
        col2 = `TIPE: ${entry.signType || '-'}\nJUMLAH: ${entry.qty || 0} Unit\nSPESIFIKASI: Standar Toll`;
     } else if (currentProject?.type === 'painting') {
-       col1 = `LOKASI:\n${entry.km || '-'} s/d ${entry.kmTo || '-'}\nKOORDINAT:\n${entry.latitude?.toFixed(6)}, ${entry.longitude?.toFixed(6)}`;
+       col1 = `LOKASI:\n${entry.km || '-'} s/d ${entry.kmTo || '-'}\nKOORDINAT:\n${entry.latitude ? Number(entry.latitude).toFixed(6) : '-'}, ${entry.longitude ? Number(entry.longitude).toFixed(6) : '-'}`;
        col2 = `OBJEK: ${entry.signType || '-'}\nLUAS: ${entry.qty || 0} m²\nWARNA: White/Yellow`;
     } else if (currentProject?.type === 'planting') {
        col2 = `VEGETASI: ${entry.plantType || '-'}\nJUMLAH: ${entry.qty || 0} Batang\nTANAH: Humus Mix`;
@@ -456,7 +422,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
       4: { cellWidth: 127, halign: 'center' } 
     },
     rowPageBreak: 'avoid',
-    didDrawCell: (data) => {
+    didDrawCell: (data: any) => {
       if (data.section === 'body' && data.column.index === 4) {
         const text = data.cell.text[0];
         let bgColor = [241, 245, 249]; 
@@ -492,7 +458,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
         const targetH = 160; 
         const gap = 5;
 
-        const renderPhotoBox = (title, offset, photoUrl) => {
+        const renderPhotoBox = (title: string, offset: number, photoUrl: string | undefined) => {
           // Draw Box Background
           doc.setFillColor(248, 250, 252);
           doc.roundedRect(startX + offset, startY, targetW, targetH, 4, 4, 'F');
@@ -505,7 +471,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
               if (!actualImg || !actualImg.startsWith('data:image/')) {
                  doc.setFontSize(7);
                  doc.setTextColor(244, 63, 94);
-                 doc.text(String('Gagal'), (startX + offset) + (targetW/2), startY + (targetH/2), { align: 'center' });
+                 doc.text(String('Failed'), (startX + offset) + (targetW/2), startY + (targetH/2), { align: 'center' });
                  return;
               }
 
@@ -556,35 +522,53 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
           doc.text(String(title || ''), startX + offset + (targetW/2), startY + targetH - 9, { align: 'center' });
         };
 
-        const getPhotoTitle = (stage) => {
+        const getPhotoTitle = (stage: string) => {
           if (currentProject?.type === 'inlet') {
             if (stage === '0') return 'Foto 0% [Belum]';
-            if (stage === '50') return 'Foto 50% [Proses]';
-            return 'Foto 100% [Selesai]';
+            if (stage === '50') return 'Foto 50% [Processing]';
+            return 'Foto 100% [Completed]';
           }
           if (currentProject?.type === 'asphalt') {
-            if (stage === '0') return 'Kondisi 0% [Sebelum]';
-            if (stage === '50') return 'Kondisi 50% [Hamparan]';
+            if (stage === '0') return 'Condition 0% [Sebelum]';
+            if (stage === '50') return 'Condition 50% [Hamparan]';
             return 'Finishing 100% [Padat]';
           }
-          if (stage === '0') return 'Kondisi 0%';
-          if (stage === '50') return 'Kondisi 50%';
+          if (stage === '0') return 'Condition 0%';
+          if (stage === '50') return 'Condition 50%';
           return 'Finishing 100%';
         };
 
-        renderPhotoBox(getPhotoTitle('0'), 0, entry.photos0?.[0]);
-        renderPhotoBox(getPhotoTitle('50'), targetW + gap, entry.photos50?.[0]);
-        renderPhotoBox(getPhotoTitle('100'), (targetW + gap) * 2, entry.photos100?.[0]);
+        const photosToRender: {url: string, label: string}[] = [];
+        const p0 = entry.photo0 || (Array.isArray(entry.photos0) ? entry.photos0[0] : null);
+        const p50 = entry.photo50 || (Array.isArray(entry.photos50) ? entry.photos50[0] : null);
+        const p100 = entry.photo100 || (Array.isArray(entry.photos100) ? entry.photos100[0] : null);
+        
+        if (p0) photosToRender.push({ url: p0, label: getPhotoTitle('0') });
+        if (p50) photosToRender.push({ url: p50, label: getPhotoTitle('50') });
+        if (p100) photosToRender.push({ url: p100, label: getPhotoTitle('100') });
+        
+        if (photosToRender.length < 3) {
+          const extraPhotos = getEntryPhotos(entry).filter(p => !photosToRender.find(ptr => ptr.url === p));
+          for (const ep of extraPhotos) {
+            if (photosToRender.length < 3) {
+              photosToRender.push({ url: ep, label: 'DOKUMENTASI TAMBAHAN' });
+            }
+          }
+        }
+
+        photosToRender.forEach((item, pIdx) => {
+           renderPhotoBox(item.label, pIdx * (targetW + gap), item.url);
+        });
       }
     },
-    didDrawPage: (data) => {
+    didDrawPage: (data: any) => {
       // Background for footer
       doc.setFillColor(248, 250, 252);
       doc.rect(0, 560, 842, 35, 'F');
       
       doc.setFontSize(7);
       doc.setTextColor(148, 163, 184);
-      doc.text(`Dicetak melalui aplikasi Toll-Guard Apex pro - Dokumen Digital Sah - Hak Cipta Dilindungi`, 40, 582);
+      doc.text(`Dicetak melalui aplikasi Toll-Guard CPM - Dokumen Digital Sah - Hak Cipta Dilindungi`, 40, 582);
       
       const totalPages = doc.getNumberOfPages();
       doc.text(`Halaman ${data.pageNumber} / ${totalPages}`, 802, 582, { align: 'right' });
@@ -614,24 +598,22 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
       doc.text('Verifikasi Sistem Digital', 600, finalY + 72);
     } else {
       doc.setFontSize(7);
-      doc.text('Tanda Tangan & Cap Basah', 100, finalY + 72);
+      doc.text('Signature & Cap Basah', 100, finalY + 72);
       doc.text('Verifikasi Sistem Digital', 600, finalY + 72);
     }
   }
 
-  const fileName = `Laporan_${currentProject?.name?.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.pdf`;
+  const fileName = `Report_${currentProject?.name?.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.pdf`;
   
   try {
-    // Try standard save first
     doc.save(fileName);
   } catch (err) {
-    console.warn('Standard doc.save failed, trying blob/file-saver fallback:', err);
+    console.warn('doc.save failed, trying blob/file-saver:', err);
     try {
       const blob = doc.output('blob');
       saveAs(blob, fileName);
-    } catch (fallbackErr) {
-      console.error('All PDF download methods failed:', fallbackErr);
-      alert('Gagal mendownload PDF. Coba gunakan browser lain atau kurangi jumlah data.');
+    } catch (saveErr: any) {
+      throw new Error("Failed menyimpan PDF: " + saveErr.message);
     }
   }
 };
@@ -642,23 +624,50 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
 
     setTimeout(async () => {
       try {
+        const jspdfModule = await import('jspdf');
+        const jsPDF = (jspdfModule as any).jsPDF || (jspdfModule as any).default.jsPDF;
+        
+        const autoTableModule = await import('jspdf-autotable');
+        let autoTable = (autoTableModule as any).default || autoTableModule;
+        if (autoTable.default) autoTable = autoTable.default;
+
         const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4', compress: true });
         const timestamp = new Date().getTime();
 
         const loadedImages: Record<string, string> = {};
         const urlsToLoad = new Set<string>();
+        
+        const getEntryPhotos = (entry: any): string[] => {
+          if (!entry) return [];
+          const photos = new Set<string>();
+          
+          if (entry.photo0) photos.add(entry.photo0);
+          if (entry.photo50) photos.add(entry.photo50);
+          if (entry.photo100) photos.add(entry.photo100);
+
+          const specificKeys = ['photos0', 'photos50', 'photos100', 'images', 'documentation', 'photos'];
+          specificKeys.forEach(k => {
+            const val = entry[k];
+            if (Array.isArray(val)) val.forEach(v => { if (typeof v === 'string' && v.length > 10) photos.add(v); });
+          });
+          Object.keys(entry).forEach(k => {
+            const val = entry[k];
+            if (typeof val === 'string' && val.length > 10 && (val.startsWith('http') || val.startsWith('data:image'))) photos.add(val);
+            else if (Array.isArray(val)) val.forEach(v => { if (typeof v === 'string' && v.length > 10 && (v.startsWith('http') || v.startsWith('data:image'))) photos.add(v); });
+          });
+          return Array.from(photos);
+        };
+
         groups.forEach(g => {
           g.entries.forEach(e => {
-            if (e.photos0?.[0]) urlsToLoad.add(e.photos0[0]);
-            if (e.photos50?.[0]) urlsToLoad.add(e.photos50[0]);
-            if (e.photos100?.[0]) urlsToLoad.add(e.photos100[0]);
+            getEntryPhotos(e).forEach(url => urlsToLoad.add(url));
           });
         });
         const urlArray = Array.from(urlsToLoad);
         
         updateProgress(`Memulai unduhan foto (0/${urlArray.length})...`, 5);
-        // Proses download secara paralel dengan queue worker agar lebih cepat & progress smooth
-        const CONCURRENCY = 5;
+        // Maksimal concurrency untuk ekspor gabungan dikembalikan ke 6
+        const CONCURRENCY = 15;
         let downloadedCount = 0;
         let activeIndex = 0;
         
@@ -707,7 +716,7 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
           doc.setFontSize(8);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(148, 163, 184);
-          doc.text(String(`PROYEK: ${currentProject?.name?.toUpperCase() || '-'} | TOLL-GUARD APEX PRO`), 40, 54);
+          doc.text(String(`PROYEK: ${currentProject?.name?.toUpperCase() || '-'} | TOLL-GUARD CPM`), 40, 54);
           doc.text(String(`HALAMAN: ${groupIdx + 1} / ${groups.length}`), 802, 42, { align: 'right' });
 
           // Summary Box
@@ -724,14 +733,14 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
           doc.text(`TOTAL ITEM: ${totalEntries} TITIK`, 500, 105);
           doc.text(`STATUS: ${completedCount}/${totalEntries} SELESAI`, 700, 105);
 
-          let head = [['No.', 'KM / STA', 'Detail Pekerjaan', 'Dokumentasi Visual']];
-          const sortedEntries = [...group.entries].sort((a, b) => a.timestamp - b.timestamp);
+          let head = [['No.', 'KM / STA', 'Detail Pekerjaan', 'Visual Documentation']];
+          const sortedEntries = [...group.entries];
           
           const bodyData = sortedEntries.map((entry, index) => {
-            let col1 = `KM: ${entry.km || '-'}\nLOKASI:\nLat: ${entry.latitude?.toFixed(6) || '-'}\nLon: ${entry.longitude?.toFixed(6) || '-'}`;
+            let col1 = `KM: ${entry.km || '-'}\nLOKASI:\nLat: ${entry.latitude ? Number(entry.latitude).toFixed(6) : '-'}\nLon: ${entry.longitude ? Number(entry.longitude).toFixed(6) : '-'}`;
             let col2 = '';
             if (currentProject?.type === 'asphalt') {
-               col2 = `LAJUR: ${entry.lajur || '-'}\nDIMENSI: ${entry.panjang || 0}m x ${entry.lebar || 0}m\nPAKAI: ${entry.materialType || '-'}\nTONASE: ${entry.tonase?.toFixed(3) || 0} T`;
+               col2 = `LAJUR: ${entry.lajur || '-'}\nDIMENSI: ${entry.panjang || 0}m x ${entry.lebar || 0}m\nPAKAI: ${entry.materialType || '-'}\nTONASE: ${entry.tonase ? Number(entry.tonase).toFixed(3) : 0} T`;
             } else {
                const itemType = entry.signType || entry.plantType || (entry.type ? entry.type.toUpperCase() : '-');
                col2 = `ITEM: ${itemType}\nQTY: ${entry.qty || 0} ${unit}\nNOTE: ${entry.description || '-'}`;
@@ -752,24 +761,40 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
               2: { cellWidth: 150 },
               3: { cellWidth: 492, minCellHeight: 120 }
             },
-            didDrawCell: (data) => {
+            didDrawCell: (data: any) => {
               if (data.section === 'body' && data.column.index === 3) {
                 const entry = sortedEntries[data.row.index];
                 if (!entry) return;
-                const photos = [entry.photos0?.[0], entry.photos50?.[0], entry.photos100?.[0]].filter(Boolean);
+                const photosToRender: {url: string, label: string}[] = [];
+                const p0 = entry.photo0 || (Array.isArray(entry.photos0) ? entry.photos0[0] : null);
+                const p50 = entry.photo50 || (Array.isArray(entry.photos50) ? entry.photos50[0] : null);
+                const p100 = entry.photo100 || (Array.isArray(entry.photos100) ? entry.photos100[0] : null);
                 
+                if (p0) photosToRender.push({ url: p0, label: 'KONDISI 0%' });
+                if (p50) photosToRender.push({ url: p50, label: 'KONDISI 50%' });
+                if (p100) photosToRender.push({ url: p100, label: 'FINISHING 100%' });
+                
+                if (photosToRender.length < 3) {
+                  const extraPhotos = getEntryPhotos(entry).filter(p => !photosToRender.find(ptr => ptr.url === p));
+                  for (const ep of extraPhotos) {
+                    if (photosToRender.length < 3) {
+                      photosToRender.push({ url: ep, label: 'DOKUMENTASI' });
+                    }
+                  }
+                }
+
                 const imgW = 150;
                 const imgH = 100;
                 const gap = 10;
 
-                photos.forEach((img, pIdx) => {
-                  if (img) {
+                photosToRender.forEach((item, pIdx) => {
+                  if (item.url) {
                     try {
-                      const actualImg = loadedImages[img as string];
+                      const actualImg = loadedImages[item.url];
                       if (!actualImg || !actualImg.startsWith('data:image/')) {
                          doc.setFontSize(6);
                          doc.setTextColor(244, 63, 94);
-                         doc.text('Gagal', data.cell.x + 5 + (pIdx * (imgW + gap)) + (imgW/2) - 10, data.cell.y + 5 + (imgH/2));
+                         doc.text('Failed', data.cell.x + 5 + (pIdx * (imgW + gap)) + (imgW/2) - 10, data.cell.y + 5 + (imgH/2));
                          return;
                       }
 
@@ -777,11 +802,10 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
                       if (actualImg.startsWith('data:image/png')) format = 'PNG';
                       else if (actualImg.startsWith('data:image/webp')) format = 'WEBP';
                       
-                      doc.addImage(actualImg, format, data.cell.x + 5 + (pIdx * (imgW + gap)), data.cell.y + 5, imgW, imgH);
+                      doc.addImage(actualImg, format, data.cell.x + 5 + (pIdx * (imgW + gap)), data.cell.y + 5, imgW, imgH, undefined, 'FAST');
                       doc.setFontSize(6);
                       doc.setTextColor(15, 23, 42);
-                      const label = pIdx === 0 ? 'KONDISI 0%' : pIdx === 1 ? 'KONDISI 50%' : 'KONDISI 100%';
-                      doc.text(label, data.cell.x + 5 + (pIdx * (imgW + gap)) + 5, data.cell.y + imgH + 12);
+                      doc.text(item.label, data.cell.x + 5 + (pIdx * (imgW + gap)) + 5, data.cell.y + imgH + 12);
                     } catch(e) {
                       console.error('Error adding PDF image', e);
                     }
@@ -800,7 +824,7 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
           // Footer per page
           doc.setFontSize(7);
           doc.setTextColor(148, 163, 184);
-          doc.text(`Toll-Guard Apex Pro | Summary Harian ${group.date}`, 40, 585);
+          doc.text(`Toll-Guard CPM | Summary Dayan ${group.date}`, 40, 585);
 
           // Add Signature on every page or just last? User said "akhir setiap laporan"
           // For combined PDF, probably mean last page or footer. 
@@ -823,8 +847,8 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
           }
         });
 
-        doc.save(`Summary_Laporan_Gabungan_${currentProject?.name}_${timestamp}.pdf`);
-        removeOverlay('PDF Gabungan Berhasil');
+        doc.save(`Summary_Report_Gabungan_${currentProject?.name}_${timestamp}.pdf`);
+        removeOverlay('PDF Gabungan Success');
       } catch (err) {
         removeOverlay();
         console.error(err);
@@ -840,11 +864,11 @@ export const exportToPDF = (project: any, data: any[], signature?: { name: strin
   try {
     console.log('Starting PDF Export...', { project, dataCount: data.length });
     if (!project) {
-      alert('Gagal: Data proyek tidak ditemukan.');
+      alert('Failed: Data proyek tidak ditemukan.');
       return;
     }
     if (!data || data.length === 0) {
-      alert('Peringatan: Tidak ada data pengerjaan untuk diekspor.');
+      alert('Warning: Tidak ada data pengerjaan untuk diekspor.');
     }
     
     createOverlay();
@@ -855,18 +879,18 @@ export const exportToPDF = (project: any, data: any[], signature?: { name: strin
         await exportPDF(project, data, signature, allEntries, (msg, val) => {
            updateProgress(msg, val);
         });
-        removeOverlay('PDF Berhasil Diunduh');
+        removeOverlay('PDF Success Diunduh');
       } catch (innerErr) {
         removeOverlay();
         console.error(innerErr);
-        alert('Gagal mendownload PDF.');
+        alert('Failed mendownload PDF.');
       }
     }, 500);
     
   } catch (err: any) {
     removeOverlay();
     console.error('PDF Export Fatal Error:', err);
-    alert(`Gagal mendownload PDF: ${err.message || 'Terjadi kesalahan sistem'}.`);
+    alert(`Failed mendownload PDF: ${err.message || 'Terjadi kesalahan sistem'}.`);
   }
 };
 

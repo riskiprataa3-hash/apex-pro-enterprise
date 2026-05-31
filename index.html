@@ -6,18 +6,39 @@
     <meta name="google" content="notranslate" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#000000" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Apex Pro" />
+    <meta name="apple-mobile-web-app-title" content="CPM" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="Apex Pro" />
+    <meta name="application-name" content="CPM" />
     <meta name="msapplication-TileColor" content="#000000" />
     <meta name="msapplication-tap-highlight" content="no" />
-    <title>Apex Pro: Enterprise Core</title>
-    <link rel="icon" href="favicon.ico" sizes="48x48">
-    <link rel="icon" href="icon.svg" sizes="any" type="image/svg+xml">
+    <title>CPM (Core Pavement Management)</title>
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then((reg) => {
+              console.log('Core: Service Worker Active', reg.scope);
+              
+              // Detect updates
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                     console.log('Core: Update available, ready to reload.');
+                   }
+                });
+              });
+            })
+            .catch((err) => console.log('Core: Worker Failure:', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

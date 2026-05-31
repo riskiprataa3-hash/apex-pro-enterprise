@@ -6,8 +6,8 @@ import LoginPage from './components/LoginPage';
 import { DownloadCloud, Loader2 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import {SplashScreen} from './components/SplashScreen';
-import { InstallGuide } from './components/InstallGuide';
-import TombolInstallPWA from './components/TombolInstallPWA';
+import InstallPWA from './components/InstallPWA';
+
 
 const DashboardPage = lazy(() => import('./components/DashboardPage'));
 const ProjectDetailPage = lazy(() => import('./components/ProjectDetailPage'));
@@ -26,6 +26,22 @@ const MainApp: React.FC = () => {
   const location = useLocation();
   const [showSplash, setShowSplash] = useState(true);
 
+  useEffect(() => {
+    // Attempt to lock screen orientation to portrait
+    if (window.screen && window.screen.orientation && (window.screen.orientation as any).lock) {
+      try {
+        (window.screen.orientation as any).lock('portrait').catch(() => {
+          console.warn("Screen orientation lock is not supported or was blocked");
+        });
+      } catch (err) {
+        console.warn("Screen orientation lock failed", err);
+      }
+    }
+  }, []);
+
+
+
+
   return (
     <>
       <AnimatePresence>
@@ -33,10 +49,14 @@ const MainApp: React.FC = () => {
       </AnimatePresence>
       
       {!showSplash && (
-        <div 
-          className="min-h-screen flex flex-col overflow-x-hidden selection:bg-primary/30 relative z-10 w-full text-foreground duration-500"
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="min-h-screen flex flex-col overflow-x-hidden selection:bg-primary/30 relative z-10 w-full text-foreground"
         >
           <Toaster position="top-center" expand={true} richColors closeButton />
+          <InstallPWA />
           
           {/* Geofence Block Overlay */}
           <AnimatePresence>
@@ -72,9 +92,6 @@ const MainApp: React.FC = () => {
             )}
           </AnimatePresence>
 
-          <InstallGuide />
-          <TombolInstallPWA />
-
           {!user ? (
             <LoginPage />
           ) : (
@@ -82,10 +99,10 @@ const MainApp: React.FC = () => {
               <AnimatePresence mode="wait">
                 <motion.main
                   key={location.pathname}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  initial={{ opacity: 0, y: 10, filter: 'blur(5px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -10, filter: 'blur(5px)' }}
+                  transition={{ type: "spring", stiffness: 800, damping: 40, ease: [0.25, 1, 0.5, 1] }}
                   className="flex-1 flex flex-col w-full overflow-x-hidden"
                 >
                   <Routes location={location}>
@@ -99,7 +116,9 @@ const MainApp: React.FC = () => {
               </AnimatePresence>
             </Suspense>
           )}
-        </div>
+          
+
+        </motion.div>
       )}
     </>
   );

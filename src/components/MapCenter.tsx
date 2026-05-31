@@ -34,6 +34,7 @@ const RecenterMap = ({ lat, lng }: { lat: number, lng: number }) => {
 };
 
 import MarkerClusterGroup from 'react-leaflet-cluster';
+import { FirebaseImage } from './FirebaseImage';
 
 export const MapCenter: React.FC = () => {
     const navigate = useNavigate();
@@ -140,7 +141,9 @@ export const MapCenter: React.FC = () => {
                                         <p className="text-[10px] font-black text-primary uppercase italic mb-1">{m.projectName}</p>
                                         <h4 className="text-sm font-black uppercase tracking-tighter mb-2">LOKASI: KM {m.km}</h4>
                                         {m.photos100 && m.photos100[0] && (
-                                            <img src={m.photos100[0]} className="w-full h-24 object-cover rounded-lg mb-2 border border-white/10" referrerPolicy="no-referrer" />
+                                            <div className="h-24 w-full mb-2">
+                                                <FirebaseImage url={m.photos100[0]} className="w-full h-full object-cover rounded-lg border border-white/10" referrerPolicy="no-referrer" />
+                                            </div>
                                         )}
                                         <div className="flex justify-between items-center text-[8px] font-bold uppercase opacity-60">
                                             <span>LON: {m.longitude.toFixed(4)}</span>

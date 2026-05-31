@@ -1,48 +1,90 @@
 {
-  "id": "com.tollguard.apexpro.enterprise.v4",
-  "short_name": "Apex Pro",
-  "name": "Apex Pro Authorized Ops",
-  "description": "Sistem Manajemen Lapangan Enterprise untuk Otorisasi Operasional.",
-  "start_url": "/",
+  "short_name": "CPM",
+  "name": "CPM (Core Pavement Management)",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "categories": [
+    "business",
+    "productivity",
+    "management"
+  ],
   "theme_color": "#000000",
   "background_color": "#ffffff",
+  "description": "CPM (Core Pavement Management) Internal Management Console for Field Operations and Asset Monitoring.",
+  "dir": "ltr",
+  "lang": "en",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.apexprocpm.app",
+      "id": "com.apexprocpm.app"
+    }
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View operations dashboard",
+      "url": "/?source=pwa",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "type": "image/png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-narrow.svg",
+      "type": "image/svg+xml",
+      "sizes": "720x1280",
+      "form_factor": "narrow",
+      "label": "CPM Mobile Interface"
+    },
+    {
+      "src": "screenshot-wide.svg",
+      "type": "image/svg+xml",
+      "sizes": "1280x720",
+      "form_factor": "wide",
+      "label": "CPM Dashboard"
+    }
+  ],
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "pwa-64x64.png",
+      "type": "image/png",
+      "sizes": "64x64",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"
     },
     {
-      "src": "/maskable-icon-512x512.png",
+      "src": "maskable-icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.svg",
-      "sizes": "1280x720",
-      "type": "image/svg+xml",
-      "form_factor": "wide",
-      "label": "Apex Pro Dashboard"
-    },
-    {
-      "src": "/screenshot-narrow.svg",
-      "sizes": "720x1280",
-      "type": "image/svg+xml",
-      "form_factor": "narrow",
-      "label": "Apex Pro Mobile View"
     }
   ]
 }

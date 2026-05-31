@@ -51,7 +51,7 @@ export const InstallGuide = () => {
                 <Smartphone className="w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase italic tracking-widest leading-none mb-1">Apex Pro App</span>
+                <span className="text-[10px] font-black uppercase italic tracking-widest leading-none mb-1">CPM App</span>
                 <span className="text-[8px] font-bold opacity-80 uppercase leading-none">Instal versi Native sekarang</span>
               </div>
             </div>
@@ -86,9 +86,9 @@ export const InstallGuide = () => {
             />
             
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
               className="relative w-full max-w-lg bg-card border border-white/10 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]"
             >
               <div className="overflow-y-auto w-full custom-scrollbar">

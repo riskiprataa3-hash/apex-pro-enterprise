@@ -5,15 +5,18 @@ import { ref, getDownloadURL } from 'firebase/storage';
 export const FirebaseImage = ({ url, ...props }: { url: string } & React.ImgHTMLAttributes<HTMLImageElement>) => {
   const [src, setSrc] = useState<string>('');
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
+    setRetryCount(0);
+    setError(false);
     if (!url) {
        setSrc('');
        return;
     }
     if (url.startsWith('http') || url.startsWith('data:')) {
-      setSrc(url);
-      return;
+       setSrc(url);
+       return;
     }
     
     // Attempt to handle gs:// or relative paths
@@ -39,6 +42,19 @@ export const FirebaseImage = ({ url, ...props }: { url: string } & React.ImgHTML
     fetchUrl();
   }, [url]);
 
+  const handleError = () => {
+    if (retryCount === 0 && src.includes('firebasestorage') && !src.includes('_800x800')) {
+       // Firebase extension might have resized and deleted the original file. Try _800x800 fallback
+       const resizedUrl = src.replace(/\.(jpeg|jpg|png|webp)(?=\?|$)/i, '_800x800.$1');
+       if (resizedUrl !== src) {
+          setRetryCount(1);
+          setSrc(resizedUrl);
+          return;
+       }
+    }
+    setError(true);
+  };
+
   if (error) {
      return <div className={`bg-rose-500/10 flex items-center justify-center text-[8px] text-rose-500 font-bold p-2 text-center leading-tight ${props.className || ''}`}>Gagal<br/>Muat</div>;
   }
@@ -47,5 +63,5 @@ export const FirebaseImage = ({ url, ...props }: { url: string } & React.ImgHTML
      return <div className={`bg-muted/40 animate-pulse flex items-center justify-center ${props.className || ''}`} />;
   }
   
-  return <img src={src} {...props} />;
+  return <img src={src} onError={handleError} {...props} />;
 };

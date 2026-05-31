@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Send, ArrowLeft, MapPin, ShieldAlert, 
-  User, MessageSquare, Clock, Globe, Trash2
+  MessageSquare, Globe, Trash2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -36,21 +36,21 @@ export const ChatCenter: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen text-foreground relative z-10 w-full px-4 sm:px-8 max-w-7xl mx-auto pt-4 pb-4">
+        <div className="flex flex-col h-screen text-foreground relative z-10 w-full px-0 sm:px-8 max-w-7xl mx-auto pt-4 pb-4">
             {/* TACTICAL HEADER */}
-            <header className="p-4 bg-background/40 backdrop-blur-2xl border border-white/20 dark:border-white/5 rounded-[2rem] flex items-center gap-4 shadow-2xl shrink-0 z-50 relative">
-                <button onClick={() => navigate('/')} className="p-3 bg-background/20 rounded-2xl hover:bg-background/40 transition-all border border-white/10">
+            <header className="p-4 mx-4 bg-card/60 backdrop-blur-2xl border border-border/50 rounded-3xl flex items-center gap-4 shadow-sm shrink-0 z-50 relative">
+                <button onClick={() => navigate('/')} className="p-2 sm:p-3 bg-secondary/50 rounded-2xl hover:bg-secondary transition-all border border-border">
                     <ArrowLeft size={18} className="text-foreground"/>
                 </button>
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
-                        <MessageSquare className="text-primary" size={16} />
-                        <h2 className="text-sm font-black italic uppercase tracking-tighter drop-shadow-md">Apex Chat Center</h2>
+                        <MessageSquare className="text-indigo-600 dark:text-indigo-400" size={16} />
+                        <h2 className="text-sm font-black italic uppercase tracking-tighter drop-shadow-sm text-foreground">Pusat Koordinasi</h2>
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                       <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isOnline ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]")} />
-                       <span className="text-[7px] font-black uppercase text-foreground/50 tracking-widest">
-                         {isOnline ? 'Network Secure' : 'Offline Access'}
+                       <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isOnline ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]")} />
+                       <span className="text-[7px] font-black uppercase text-muted-foreground tracking-widest">
+                         {isOnline ? 'Jaringan Aktif' : 'Mode Luring'}
                        </span>
                     </div>
                 </div>
@@ -70,11 +70,11 @@ export const ChatCenter: React.FC = () => {
             </header>
 
             {/* MESSAGES LIST */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar pb-12 mt-4 bg-background/10 backdrop-blur-md rounded-[2rem] border border-white/10 dark:border-white/5 shadow-inner">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 sm:p-6 space-y-6 custom-scrollbar pb-12 mt-4">
                 {chatMessages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center opacity-10 text-center space-y-4">
-                        <ShieldAlert size={64} />
-                        <p className="text-[10px] font-black uppercase tracking-[1em]">Awaiting Coordination...</p>
+                    <div className="h-full flex flex-col items-center justify-center opacity-30 text-center space-y-4">
+                        <ShieldAlert size={64} className="text-muted-foreground" />
+                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground">Persiapkan Pesan Pertama...</p>
                     </div>
                 ) : chatMessages.map((msg: any) => {
                     const isMe = msg.senderEmail?.toLowerCase() === user?.email?.toLowerCase();
@@ -86,29 +86,29 @@ export const ChatCenter: React.FC = () => {
                             isMe ? "ml-auto items-end" : "items-start"
                         )}>
                             <div className="flex items-center gap-2 mb-1.5 px-2">
-                                <span className={cn("text-[8px] font-black uppercase", isMe ? "text-primary/60" : "text-white/30")}>
-                                  {isMe ? 'Anda' : (msg.senderEmail?.split('@')[0] || 'Field Unit')}
+                                <span className={cn("text-[8px] font-black uppercase", isMe ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground")}>
+                                  {isMe ? 'Anda' : (msg.senderEmail?.split('@')[0] || 'Unit Lapangan')}
                                 </span>
-                                <span className="text-[7px] font-mono text-white/10">
+                                <span className="text-[7px] font-mono text-muted-foreground">
                                   {new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
 
                             <div className={cn(
-                                "p-4 rounded-[1.5rem] border text-sm shadow-xl transition-all",
+                                "p-4 rounded-3xl border text-sm shadow-md transition-all",
                                 isMe 
-                                    ? "bg-primary text-black border-primary rounded-tr-none" 
-                                    : "bg-white/[0.03] text-white border-white/10 rounded-tl-none"
+                                    ? "bg-indigo-600 text-white border-indigo-700/50 rounded-tr-none" 
+                                    : "bg-card text-foreground border-border rounded-tl-none"
                             )}>
                                 {isLocation ? (
                                     <div className="flex flex-col gap-3">
                                        <div className="flex items-center gap-3">
-                                          <div className={cn("p-2 rounded-lg", isMe ? "bg-black/10" : "bg-primary/20")}>
-                                             <Globe size={18} className={isMe ? "text-black" : "text-primary"} />
+                                          <div className={cn("p-2 rounded-xl", isMe ? "bg-white/20" : "bg-indigo-100 dark:bg-indigo-900/30")}>
+                                             <Globe size={18} className={isMe ? "text-white" : "text-indigo-600 dark:text-indigo-400"} />
                                           </div>
-                                          <span className="font-black italic uppercase tracking-tighter">Signal Beacon Broadcast</span>
+                                          <span className="font-black italic uppercase tracking-tighter">Penyebaran Lokasi</span>
                                        </div>
-                                       <p className="text-[10px] font-mono opacity-80 leading-relaxed font-bold break-all">
+                                       <p className="text-[10px] font-mono opacity-90 leading-relaxed font-bold break-all">
                                           {msg.content.split(' (')[0]}
                                        </p>
                                        <a 
@@ -117,10 +117,10 @@ export const ChatCenter: React.FC = () => {
                                           rel="noreferrer"
                                           className={cn(
                                             "py-3 rounded-xl text-[9px] font-black uppercase text-center transition-all", 
-                                            isMe ? "bg-black/10 hover:bg-black/20" : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+                                            isMe ? "bg-white/20 hover:bg-white/30 text-white" : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800"
                                           )}
                                        >
-                                          Track Unit In Map Engine
+                                          Lacak di Peta
                                        </a>
                                     </div>
                                 ) : (
@@ -133,33 +133,30 @@ export const ChatCenter: React.FC = () => {
             </div>
 
             {/* ACTION INPUT */}
-            <div className="p-6 bg-black/40 backdrop-blur-3xl border-t border-white/5">
-                <div className="max-w-4xl mx-auto flex gap-3 items-center">
+            <div className="p-4 sm:p-6 bg-card/60 backdrop-blur-3xl border-t border-border">
+                <div className="max-w-4xl mx-auto flex gap-2 sm:gap-3 items-center">
                     <button 
                         onClick={shareLocation}
-                        title="Share Live Location"
-                        className="p-5 bg-white/5 border border-white/10 text-primary rounded-2xl hover:bg-primary hover:text-black transition-all group"
+                        title="Bagikan Lokasi Langsung"
+                        className="p-3 sm:p-4 bg-secondary border border-border text-indigo-600 dark:text-indigo-400 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group shrink-0"
                     >
-                        <MapPin size={24} className="group-hover:scale-110 transition-transform" />
+                        <MapPin size={22} className="group-hover:scale-110 transition-transform" />
                     </button>
                     <div className="flex-1 relative">
                         <input 
-                            placeholder="OPERATIONAL COMMAND..."
+                            placeholder="Tulis pesan..."
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                            className="w-full h-16 bg-white/[0.02] border border-white/10 rounded-2xl px-8 text-sm font-black italic placeholder:text-white/10 focus:border-primary outline-none transition-all"
+                            className="w-full h-12 sm:h-14 bg-background border border-border rounded-2xl px-5 sm:px-6 text-sm font-bold placeholder:text-muted-foreground focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all shadow-sm"
                         />
                     </div>
                     <button 
                         onClick={handleSend}
-                        className="p-5 bg-primary text-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.05] active:scale-95 transition-all"
+                        className="p-3 sm:p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/30 hover:scale-[1.05] active:scale-95 transition-all shrink-0"
                     >
-                        <Send size={24} />
+                        <Send size={22} />
                     </button>
-                </div>
-                <div className="mt-4 flex justify-center">
-                    <p className="text-[7px] font-black uppercase text-white/10 tracking-[0.6em] italic">Tactical Secure Coordination Channel</p>
                 </div>
             </div>
         </div>

@@ -1,13 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-display: "Outfit", sans-serif;
 
-  --radius-lg: 1.25rem;
-  --radius-md: 0.75rem;
+  --radius-lg: 1.5rem;
+  --radius-md: 1rem;
   --radius-sm: 0.5rem;
 
   --color-border: var(--border);
@@ -40,51 +41,51 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: #F8F9FA;
+    --foreground: #111827;
     --card: #ffffff;
-    --card-foreground: #09090b;
+    --card-foreground: #111827;
     --popover: #ffffff;
-    --popover-foreground: #09090b;
-    --primary: #f43f5e;
+    --popover-foreground: #111827;
+    --primary: #2563EB;
     --primary-foreground: #ffffff;
-    --secondary: #e2e8f0;
-    --secondary-foreground: #0f172a;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
-    --destructive: #ef4444;
-    --destructive-foreground: #fafafa;
-    --border: #cbd5e1;
-    --input: #cbd5e1;
-    --ring: #f43f5e;
+    --secondary: #F3F4F6;
+    --secondary-foreground: #111827;
+    --muted: #F3F4F6;
+    --muted-foreground: #6B7280;
+    --accent: #EFF6FF;
+    --accent-foreground: #1D4ED8;
+    --destructive: #EF4444;
+    --destructive-foreground: #ffffff;
+    --border: #E5E7EB;
+    --input: #E5E7EB;
+    --ring: #2563EB;
   }
 
   .dark {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #09090b;
-    --card-foreground: #fafafa;
-    --popover: #09090b;
-    --popover-foreground: #fafafa;
-    --primary: #f43f5e;
+    --background: #111827;
+    --foreground: #F9FAFB;
+    --card: #1F2937;
+    --card-foreground: #F9FAFB;
+    --popover: #1F2937;
+    --popover-foreground: #F9FAFB;
+    --primary: #3B82F6;
     --primary-foreground: #ffffff;
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
-    --muted: #18181b;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #f43f5e;
+    --secondary: #374151;
+    --secondary-foreground: #F9FAFB;
+    --muted: #374151;
+    --muted-foreground: #9CA3AF;
+    --accent: #1E3A8A;
+    --accent-foreground: #EFF6FF;
+    --destructive: #F87171;
+    --destructive-foreground: #ffffff;
+    --border: #374151;
+    --input: #374151;
+    --ring: #3B82F6;
   }
 
   html, body {
-    @apply m-0 p-0 w-full min-h-screen text-foreground transition-colors duration-300;
+    @apply m-0 p-0 w-full min-h-screen text-foreground bg-background transition-colors duration-300;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -104,23 +105,7 @@
     z-index: 0;
   }
 
-  /* Glassmorphism Background Base */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at 15% 10%, rgba(244, 63, 94, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 85% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 35%),
-                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
-    background-color: var(--background);
-    background-size: cover;
-    z-index: -2;
-    pointer-events: none;
-    transition: background-color 0.3s ease;
-  }
-
-  /* Sophisticated custom scrollbar */
+  /* Clean Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -131,7 +116,10 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-foreground/20 rounded-full hover:bg-primary transition-colors backdrop-blur-md border border-white/10;
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 hover:bg-gray-600;
   }
 
   img {

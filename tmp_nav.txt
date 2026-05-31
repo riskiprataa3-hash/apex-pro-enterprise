@@ -1,0 +1,8 @@
+808:  let navItems = [
+832:    navItems = [
+929:      const currentIndex = navItems.findIndex(i => i.id === activeTab);
+930:      if (currentIndex !== -1 && currentIndex < navItems.length - 1) handleTabChange(navItems[currentIndex + 1].id);
+933:      const currentIndex = navItems.findIndex(i => i.id === activeTab);
+934:      if (currentIndex > 0) handleTabChange(navItems[currentIndex - 1].id);
+1030:                const curTab = navItems.find(i=>i.id===activeTab);
+1378:                 {navItems.map((item, index) => {

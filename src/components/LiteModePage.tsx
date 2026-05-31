@@ -3,10 +3,11 @@ import {
   Camera, Map as MapIcon, Save, ChevronLeft, Database, 
   HardHat, Activity, LayoutDashboard, Share2, Plus, History, CloudLightning,
   Maximize2, CheckCircle2, Navigation, ArrowLeft, Info, Image as ImageIcon,
-  Wifi, WifiOff, Zap, ShieldCheck
+  Wifi, WifiOff, Zap, ShieldCheck, Home, Folder, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { FirebaseImage } from './FirebaseImage';
 import { useSwipeable } from 'react-swipeable';
 
 import { useApp } from '../context/AppContext';
@@ -299,386 +300,449 @@ const TollGuardLite = () => {
     } catch(e) {
         alert("Gagal memproses. Coba lagi.");
     }
-  };
+  };  return (
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-slate-950 text-gray-900 dark:text-gray-100 relative z-10 w-full flex flex-col font-sans pb-28">
+      
+      {!selectedProjectId ? (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }}
+          className="flex-1 flex flex-col p-6 font-sans w-full max-w-2xl mx-auto"
+        >
+          {/* Top Header */}
+          <div className="flex justify-between items-center mb-8 mt-4">
+             <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight font-sans">Halo, Petugas! 👋</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih proyek untuk memulai aktivitas</p>
+             </div>
+             <button 
+               onClick={() => navigate('/')} 
+               className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm border border-gray-200 dark:border-slate-800 active:scale-95 transition-all"
+             >
+                <LayoutDashboard size={22} className="text-blue-600 dark:text-blue-400" />
+             </button>
+          </div>
+          
+          {/* Status Card (GoPay Inspired Banner) */}
+          <div className="bg-blue-600 dark:bg-blue-900 rounded-[28px] p-6 text-white shadow-xl shadow-blue-600/20 dark:shadow-blue-950/20 mb-8 relative overflow-hidden">
+             {/* decorative blob */}
+             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+             <div className="flex justify-between items-center mb-6 relative z-10">
+                <div className="flex items-center gap-2">
+                   <ShieldCheck size={20} className="text-blue-100" />
+                   <span className="font-semibold text-sm tracking-wide">Status Ruang Kerja</span>
+                </div>
+                <div className="bg-white/20 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 backdrop-blur-md">
+                   <div className={cn("w-2 h-2 rounded-full shadow-sm", isOnline ? "bg-emerald-400 animate-pulse" : "bg-rose-400")} />
+                   {isOnline ? 'Network Secured' : 'Offline Mode Active'}
+                </div>
+             </div>
+             <p className="text-xs text-blue-50 max-w-[220px] relative z-10 leading-relaxed font-semibold mb-1">
+                {isOnline ? 'Sistem terhubung ke server utama. Sinkronisasi data real-time aktif.' : 'Koneksi terputus. Data akan disimpan secara lokal terlebih dahulu.'}
+             </p>
+             {projectLogs.length > 0 && (
+                <div className="mt-4 flex gap-2 relative z-10">
+                  <div className="text-[10px] font-bold bg-white/20 px-2.5 py-1.5 rounded-lg border border-border/50">
+                    {projectLogs.length} DRAFT TERTUNDA
+                  </div>
+                </div>
+             )}
+          </div>
+ 
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 px-1">Daftar Proyek Aktif</h2>
+          <div className="space-y-3 pb-12">
+            {projects.map((p: any, idx: number) => (
+              <motion.button 
+                key={p.id} 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                onClick={() => {
+                  setSelectedProjectId(p.id);
+                  setCurrentProjectId(p.id);
+                  setIsSafetyDone(false);
+                  setActiveTab('input');
+                }} 
+                className="w-full bg-white dark:bg-slate-900 p-5 rounded-[24px] flex items-center gap-4 transition-all active:scale-[0.98] shadow-sm border border-gray-100 dark:border-slate-800/50 group hover:border-blue-200 dark:hover:border-blue-800"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center shrink-0 group-hover:bg-blue-600 transition-colors">
+                  <Folder size={24} className="text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-tight mb-1">{p.name}</h3>
+                  <p className="text-[10px] font-semibold text-blue-600/80 dark:text-blue-400 uppercase tracking-widest">{p.category}</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <ChevronLeft size={20} className="rotate-180" />
+                </div>
+              </motion.button>
+            ))}
+          </div>
+ 
+        </motion.div>
+      ) : (
+        <>
+          {/* Header Simple */}
+          <div className="mb-6 pt-4 px-2">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Laporan Baru</h1>
+            <p className="text-gray-400 dark:text-gray-450 text-sm">Isi data berurutan ke bawah</p>
+          </div>
 
-  if (!selectedProjectId) {
-    return (
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }}
-        className="min-h-screen text-foreground p-8 relative z-10 w-full"
-      >
-        <header className="mb-12 relative max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4 group">
-            <ApexLogo className="w-14 h-14" />
-            <div>
-               <h1 className="text-4xl font-black italic tracking-tighter uppercase leading-none">Toll-Guard<br/><span className="text-primary">Lite.</span></h1>
-               <div className="flex items-center gap-2 mt-1">
-                  {isOnline ? (
-                    <div className="flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      <Wifi size={8} className="text-emerald-500" />
-                      <span className="text-[7px] font-black uppercase text-emerald-500">Online</span>
+          <main {...swipeHandlers} className="max-w-2xl mx-auto px-4 w-full flex-1">
+            <AnimatePresence mode="wait">
+              {activeTab === 'input' && (
+                <motion.div 
+                  key="input"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ type: "spring", stiffness: 800, damping: 40 }}
+                >
+                  {!isSafetyDone ? (
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center shadow-sm flex flex-col gap-8 mt-4 relative overflow-hidden">
+                      <div className="relative z-10">
+                        <div className="w-24 h-24 bg-blue-50 dark:bg-blue-950/40 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <ShieldCheck size={48} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Protokol K3</h3>
+                        <p className="text-sm text-gray-400 dark:text-gray-405 leading-relaxed mb-8">
+                          Pastikan Anda menggunakan Alat Pelindung Diri (APD) secara lengkap sebelum mencatat data.
+                        </p>
+                        <button 
+                          onClick={() => setIsSafetyDone(true)} 
+                          className="w-full py-4 bg-blue-600 hover:bg-blue-700 transition-all active:scale-95 text-white font-bold rounded-2xl shadow-sm text-base"
+                        >
+                          Saya Siap & Memakai APD
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-                      <WifiOff size={8} className="text-rose-500" />
-                      <span className="text-[7px] font-black uppercase text-rose-500">Offline</span>
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm flex flex-col gap-8 mb-8 border border-gray-100 dark:border-slate-800/60">
+                      
+                      {/* Bagian 1: Lokasi */}
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">1. Titik Lokasi (STA)</label>
+                        {currentProject?.category === 'PAINTING' ? (
+                          <div className="flex items-center gap-3">
+                            <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="STA Awal" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            <span className="text-gray-300 dark:text-gray-700 font-bold">-</span>
+                            <input type="text" value={form.kmTo} onChange={e => setForm({...form, kmTo: e.target.value})} placeholder="STA Akhir" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                          </div>
+                        ) : (
+                          <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="Contoh: 10+200 B" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                        )}
+                        
+                        <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mt-5 mb-3 block">Lajur</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['L1', 'L2', 'L3', 'B.Luar', 'B.Dlm', 'Bhu'].map(l => (
+                            <button 
+                              key={l} 
+                              onClick={() => setForm({...form, lajur: l})}
+                              className={cn(
+                                "py-3 rounded-xl text-[11px] font-bold transition-all border",
+                                form.lajur === l 
+                                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20" 
+                                  : "bg-white dark:bg-slate-850 text-gray-500 dark:text-gray-300 border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+                              )}
+                            >
+                              {l}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Bagian 2: Dimensi (If Asphalt) */}
+                      {currentProject?.category === 'ASPHALT' && (
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">2. Dimensi & Ukuran</label>
+                          <div className="grid grid-cols-3 gap-3">
+                            <input type="number" placeholder="Panjang (m)" value={form.panjang} onChange={e => setForm({...form, panjang: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-sm font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            <input type="number" placeholder="Lebar (m)" value={form.lebar} onChange={e => setForm({...form, lebar: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-sm font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            <input type="number" placeholder="Tebal (cm)" value={form.tebal} onChange={e => setForm({...form, tebal: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-sm font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bagian 3: Parameters */}
+                      {config && (
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">3. Detail Output</label>
+                          <div className="flex flex-col gap-3">
+                            <div className="relative">
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-wider">{config.unit1}</span>
+                              <input type="text" placeholder="..." value={form.val1} onChange={e => setForm({...form, val1: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-bold rounded-2xl p-4 pl-28 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">{config.unit2}</span>
+                              <input type="number" placeholder="0.00" value={form.val2} onChange={e => setForm({...form, val2: e.target.value})} className="w-full bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-lg font-black rounded-2xl p-4 pl-36 outline-none focus:ring-2 focus:ring-blue-200 transition-all border border-blue-100/50 dark:border-blue-900/30" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bagian 4: Photos */}
+                      {config && (
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-4 block flex justify-between items-center">
+                            <span>4. Dokumentasi <span className="text-rose-500">*</span></span>
+                          </label>
+                          <div className="grid grid-cols-3 gap-3">
+                            {config.stages.map((stage: any) => (
+                              <div key={stage.key} className="flex flex-col gap-2">
+                                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-455 uppercase text-center">{stage.label}</span>
+                                <div className={cn("relative aspect-square rounded-[20px] flex flex-col items-center justify-center overflow-hidden transition-all", photos[stage.key] ? "bg-gray-900 border-2 border-emerald-500 shadow-md" : "bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 border-dashed hover:bg-gray-100 dark:hover:bg-slate-750")}>
+                                    {photos[stage.key] ? (
+                                      <>
+                                        <img src={URL.createObjectURL(photos[stage.key])} className="absolute inset-0 w-full h-full object-cover opacity-80" alt="Preview"/>
+                                        <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full border border-white flex items-center justify-center shadow-sm">
+                                          <CheckCircle2 size={10} className="text-white" />
+                                        </div>
+                                        <label className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer">
+                                          <input type="file" accept="image/*" className="hidden" onChange={e => {
+                                            const file = e.target.files?.[0];
+                                            if(file) setPhotos({...photos, [stage.key]: file});
+                                          }} />
+                                        </label>
+                                      </>
+                                    ) : (
+                                      <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer group">
+                                        <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm mb-1 group-hover:scale-110 transition-transform">
+                                          <Camera size={14} className="text-blue-500 dark:text-blue-400" />
+                                        </div>
+                                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+                                          const file = e.target.files?.[0];
+                                          if(file) setPhotos({...photos, [stage.key]: file});
+                                        }} />
+                                      </label>
+                                    )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bagian 5: Status & Note */}
+                      <div className="pt-2 border-t border-gray-50 dark:border-slate-800">
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">5. Status Penyelesaian</label>
+                          <div className="flex bg-gray-50 dark:bg-slate-850 p-1.5 rounded-2xl gap-1 mb-4 border border-gray-100/50 dark:border-slate-800/40">
+                            <button 
+                              onClick={() => setForm({...form, status: 'PROSES'})}
+                            className={cn(
+                                "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase transition-all tracking-wider",
+                                form.status === 'PROSES' ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-gray-200/50 dark:border-slate-805" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-350"
+                              )}
+                            >
+                              Proses
+                            </button>
+                            <button 
+                              onClick={() => setForm({...form, status: 'SELESAI'})}
+                              className={cn(
+                                "flex-1 py-3 rounded-xl text-[11px] font-bold uppercase transition-all tracking-wider",
+                                form.status === 'SELESAI' ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-gray-200/50 dark:border-slate-805" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-350"
+                              )}
+                            >
+                              Selesai 100%
+                            </button>
+                          </div>
+                          
+                          <textarea 
+                            value={form.note} 
+                            onChange={e => setForm({...form, note: e.target.value})} 
+                            placeholder="Catatan kendala lapangan..." 
+                            className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl p-4 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-100 min-h-[100px] resize-none placeholder:text-gray-405 dark:placeholder:text-gray-500"
+                          />
+                      </div>
                     </div>
                   )}
-               </div>
-            </div>
-          </div>
-          <button 
-             onClick={() => navigate('/')} 
-             className="p-4 bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-2xl border border-white/10 dark:border-white/5 transition-all shadow-xl active:scale-90"
-          >
-             <LayoutDashboard size={20} />
-          </button>
-        </header>
-
-        <div className="grid gap-4 max-w-2xl mx-auto">
-          {projects.map((p: any, idx: number) => (
-            <motion.button 
-              key={p.id} 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => {
-                setSelectedProjectId(p.id);
-                setCurrentProjectId(p.id);
-                setIsSafetyDone(false);
-              }} 
-              className="group bg-background/20 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-xl p-8 rounded-[2.5rem] flex justify-between items-center hover:bg-primary/10 transition-all text-left relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                 <Zap className="w-20 h-20 rotate-12" />
-              </div>
-              <div className="relative z-10">
-                <h3 className="text-2xl font-black italic uppercase group-hover:text-primary transition-colors tracking-tighter leading-none mb-1">{p.name}</h3>
-                <p className="text-[10px] font-black opacity-50 uppercase tracking-widest">{p.category} MANAGEMENT</p>
-              </div>
-              <Plus className="group-hover:text-primary transition-colors relative z-10" />
-            </motion.button>
-          ))}
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen text-foreground relative z-10 w-full flex flex-col">
-      <nav className="sticky top-4 z-50 bg-background/40 backdrop-blur-2xl border border-white/20 dark:border-white/5 px-6 py-4 flex items-center justify-between rounded-[2rem] mx-4 shadow-2xl max-w-2xl sm:mx-auto">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setSelectedProjectId(null)} className="p-3 bg-background/20 rounded-xl hover:bg-background/40 transition-all active:scale-90 border border-white/10"><ChevronLeft size={18}/></button>
-          <div>
-            <h2 className="text-[10px] font-black uppercase italic tracking-tighter leading-none">{currentProject.name}</h2>
-            {lastKM && (
-              <p className="text-[7px] font-black text-emerald-500 uppercase tracking-widest mt-1">Last Recorded: {lastKM}</p>
-            )}
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isOnline ? "bg-emerald-500" : "bg-rose-500")} />
-              <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest">{isOnline ? 'Cloud Synced' : 'Local Archive Only'}</span>
-            </div>
-          </div>
-        </div>
-        <div className="p-3 bg-primary/10 rounded-xl text-primary font-black italic text-xs tracking-tighter">APEX PRO</div>
-      </nav>
-
-      <div className="flex p-4 gap-2 max-w-2xl mx-auto w-full">
-        {['input', 'data'].map((t) => (
-          <button 
-            key={t}
-            onClick={() => setActiveTab(t)}
-            className={cn(
-              "flex-1 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all",
-              activeTab === t ? "bg-primary text-black shadow-lg shadow-primary/20" : "bg-white/5 text-slate-500 hover:bg-white/10"
-            )}
-          >
-            {t === 'input' ? 'Parameter Port' : 'Data Vault'}
-          </button>
-        ))}
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 pb-4">
-      </div>
-
-      <main {...swipeHandlers} className="max-w-2xl mx-auto p-6 pb-24 w-full">
-        <AnimatePresence mode="wait">
-          {activeTab === 'input' && (
-            <motion.div 
-              key="input"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="space-y-8 will-change-transform"
-            >
-              {!isSafetyDone ? (
-                <div className="bg-amber-500/5 border border-amber-500/20 p-10 rounded-[4rem] text-center space-y-6">
-                  <div className="bg-amber-500/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-2 border-amber-500/30">
-                    <HardHat size={48} className="text-amber-500" />
-                  </div>
-                  <h3 className="text-2xl font-black italic uppercase tracking-tighter">Protokol Keamanan</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">Wajib Menggunakan APD Lengkap Sebelum Interaksi di Lokasi Pekerjaan. Keselamatan adalah Prioritas Utama.</p>
-                  <button 
-                    onClick={() => setIsSafetyDone(true)} 
-                    className="w-full py-5 bg-amber-500 hover:bg-amber-400 transition-all active:scale-95 text-black font-black uppercase rounded-2xl tracking-[0.2em]"
-                  >
-                    Konfirmasi Keamanan
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    {currentProject.category === 'PAINTING' ? (
-                      <div className="col-span-2 grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                           <label className="text-[7px] font-black uppercase text-slate-500 tracking-widest pl-1">KM Awal</label>
-                           <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="KM 10+200" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-xs font-black italic focus:border-primary outline-none transition-all" />
-                        </div>
-                        <div className="space-y-1">
-                           <label className="text-[7px] font-black uppercase text-slate-500 tracking-widest pl-1">KM Akhir</label>
-                           <input type="text" value={form.kmTo} onChange={e => setForm({...form, kmTo: e.target.value})} placeholder="KM 10+500" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-xs font-black italic focus:border-primary outline-none transition-all" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 col-span-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">Lokasi (KM / STA)</label>
-                        <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="KM 10+200 A" className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-sm font-black italic focus:border-primary outline-none transition-all" />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-2 col-span-2">
-                       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">Identifikasi Lajur</label>
-                       <div className="grid grid-cols-6 gap-2">
-                         {['L1', 'L2', 'L3', 'B.Luar', 'B.Dlm', 'Bhu'].map(l => (
-                           <button 
-                             key={l} 
-                             onClick={() => setForm({...form, lajur: l})}
-                             className={cn(
-                               "py-3 rounded-xl text-[8px] font-black border transition-all",
-                               form.lajur === l ? "bg-primary text-black border-primary" : "bg-white/5 border-white/10 text-slate-500"
-                             )}
-                           >
-                              {l}
-                           </button>
-                         ))}
-                       </div>
+ 
+                  {/* Submit Action */}
+                  {isSafetyDone && (
+                    <div className="pt-4 pb-8">
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleSave} 
+                        className="w-full bg-blue-600 text-white font-bold py-5 rounded-[24px] shadow-lg shadow-blue-600/30 flex items-center justify-center gap-3 hover:bg-blue-700 transition-colors uppercase tracking-widest text-sm"
+                      >
+                        <Save size={18} />
+                        <span>Simpan ke Draft Lokal</span>
+                      </motion.button>
+                      <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4 leading-relaxed font-semibold">
+                        Data akan disimpan di dalam perangkat (Offline).<br/> Lakukan sinkronisasi ke server melalui menu <b className="text-gray-750 dark:text-gray-300">Data</b>.
+                      </p>
                     </div>
-
-                    {currentProject.category === 'ASPHALT' && (
-                      <div className="col-span-2 grid grid-cols-3 gap-3 bg-muted/20 p-4 rounded-3xl border border-border">
-                         <div className="space-y-1">
-                            <span className="text-[7px] font-black text-slate-500 uppercase block text-center">Panjang (m)</span>
-                            <input type="number" value={form.panjang} onChange={e => setForm({...form, panjang: e.target.value})} className="w-full bg-background border-none rounded-xl text-center font-black italic p-3 text-lg" />
+                  )}
+                </motion.div>
+              )}
+ 
+              {activeTab === 'data' && (
+                <motion.div 
+                  key="data"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ type: "spring", stiffness: 800, damping: 40 }}
+                  className="space-y-6 pb-20 mt-4"
+                >
+                  {projectLogs.length > 0 && (
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-[28px] shadow-sm border border-gray-100 dark:border-slate-800/50">
+                      <div className="flex items-start gap-4 mb-5">
+                         <div className="w-12 h-12 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center shrink-0">
+                           <Database size={24} />
                          </div>
-                         <div className="space-y-1">
-                            <span className="text-[7px] font-black text-slate-500 uppercase block text-center">Lebar (m)</span>
-                            <input type="number" value={form.lebar} onChange={e => setForm({...form, lebar: e.target.value})} className="w-full bg-background border-none rounded-xl text-center font-black italic p-3 text-lg" />
-                         </div>
-                         <div className="space-y-1">
-                            <span className="text-[7px] font-black text-slate-500 uppercase block text-center">Tebal (cm)</span>
-                            <input type="number" value={form.tebal} onChange={e => setForm({...form, tebal: e.target.value})} className="w-full bg-background border-none rounded-xl text-center font-black italic p-3 text-lg" />
+                         <div>
+                            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Menunggu Sinkronisasi</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Ada {projectLogs.length} data laporan lokal yang belum diunggah ke server.</p>
                          </div>
                       </div>
-                    )}
-
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">{config.unit1}</label>
-                       <input type="text" value={form.val1} onChange={e => setForm({...form, val1: e.target.value})} placeholder="Parameter" className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-sm font-black focus:border-primary outline-none transition-all" />
+                      <button
+                        disabled={isSyncing}
+                        onClick={handleSyncData}
+                        className={cn(
+                          "w-full py-4 rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all",
+                          isOnline 
+                            ? "bg-blue-600 text-white hover:bg-blue-700 active:scale-95 text-xs shadow-md shadow-blue-600/20" 
+                            : "bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 cursor-not-allowed text-xs border border-gray-200 dark:border-slate-700"
+                        )}
+                      >
+                        {isSyncing ? <Activity size={18} className="animate-spin" /> : <CloudLightning size={18} />}
+                        {isSyncing ? "Mengirim Data..." : `Sinkronkan Semua Sekarang`}
+                      </button>
                     </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">{config.unit2}</label>
-                       <input type="number" value={form.val2} onChange={e => setForm({...form, val2: e.target.value})} placeholder="0.00" className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-sm font-black focus:border-primary outline-none transition-all" />
+                  )}
+                  
+                  {projectLogs.length === 0 ? (
+                    <div className="text-center py-32 space-y-4 px-6 relative">
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50 dark:from-blue-950/25 via-transparent to-transparent opacity-50 z-0 pl-16 pt-16"></div>
+                      <div className="bg-white dark:bg-slate-900 w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-sm border border-gray-50 dark:border-slate-800 relative z-10">
+                        <CheckCircle2 size={40} className="text-emerald-500" />
+                      </div>
+                      <div className="relative z-10">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Semua Tersinkronisasi</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Tidak ada data tertunda di perangkat Anda. Kerja bagus!</p>
+                      </div>
                     </div>
-
-                    <div className="space-y-2 col-span-2">
-                      <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">Status Pengerjaan</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button 
-                          onClick={() => setForm({...form, status: 'PROSES'})} 
-                          className={cn(
-                            "py-5 rounded-2xl text-[9px] font-black border transition-all flex items-center justify-center gap-2",
-                            form.status === 'PROSES' ? "bg-amber-500 text-black border-amber-500 shadow-lg shadow-amber-500/20" : "bg-white/5 border-white/10 text-slate-500 hover:bg-white/10"
-                          )}
+                  ) : (
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-widest ml-2 flex items-center gap-2">
+                        <History size={14} /> Daftar Antrean ({projectLogs.length})
+                      </h3>
+                      {projectLogs.map((log: any) => (
+                        <div 
+                          key={log.id} 
+                          className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800/80 p-5 rounded-[24px] shadow-sm relative overflow-hidden"
                         >
-                          <Activity size={12} /> PROSES
-                        </button>
-                        <button 
-                          onClick={() => setForm({...form, status: 'SELESAI'})} 
-                          className={cn(
-                            "py-5 rounded-2xl text-[9px] font-black border transition-all flex items-center justify-center gap-2",
-                            form.status === 'SELESAI' ? "bg-emerald-500 text-black border-emerald-500 shadow-lg shadow-emerald-500/20" : "bg-white/5 border-white/10 text-slate-500 hover:bg-white/10"
-                          )}
-                        >
-                          <CheckCircle2 size={12} /> SELESAI
-                        </button>
-                      </div>
-                    </div>
-                    <div className="space-y-2 col-span-2">
-                      <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">Catatan</label>
-                      <textarea value={form.note} onChange={e => setForm({...form, note: e.target.value})} placeholder="Detail kendala atau catatan lapangan..." className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-xs font-medium focus:border-primary outline-none resize-none h-24 transition-all" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 pt-4">
-                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest pl-2">Dokumentasi</label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {config.stages.map((stage: any) => (
-                        <div key={stage.key} className={cn("relative aspect-square rounded-[2rem] flex flex-col items-center justify-center border-2 overflow-hidden transition-all", photos[stage.key] ? "border-primary bg-primary/10 shadow-lg shadow-primary/10" : "border-dashed border-white/10 bg-white/5 hover:bg-white/10")}>
-                          {photos[stage.key] ? (
-                            <>
-                              <img src={URL.createObjectURL(photos[stage.key])} className="absolute inset-0 w-full h-full object-cover" alt="Preview"/>
-                              <label className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-all cursor-pointer">
-                                <ImageIcon size={20} className="mb-1" />
-                                <span className="text-[8px] font-black uppercase">Ganti</span>
-                                <input type="file" accept="image/*" className="hidden" onChange={e => {
-                                  const file = e.target.files?.[0];
-                                  if(file) setPhotos({...photos, [stage.key]: file});
-                                }} />
-                              </label>
-                            </>
-                          ) : (
-                            <div className="flex flex-col items-center gap-2 w-full px-4 text-center">
-                              <span className="text-[8px] font-black uppercase text-primary mb-1 tracking-tighter">{stage.label}</span>
-                              <div className="flex w-full gap-2 px-1">
-                                <label className="flex-1 flex flex-col items-center justify-center bg-black/20 py-2.5 rounded-xl cursor-pointer active:scale-95 transition-transform">
-                                   <Camera className="w-4 h-4 text-primary" />
-                                   <input type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
-                                     const file = e.target.files?.[0];
-                                     if(file) setPhotos({...photos, [stage.key]: file});
-                                   }} />
-                                </label>
-                                <label className="flex-1 flex flex-col items-center justify-center bg-black/20 py-2.5 rounded-xl cursor-pointer active:scale-95 transition-transform">
-                                   <ImageIcon className="w-4 h-4 text-emerald-500" />
-                                   <input type="file" accept="image/*" className="hidden" onChange={e => {
-                                     const file = e.target.files?.[0];
-                                     if(file) setPhotos({...photos, [stage.key]: file});
-                                   }} />
-                                </label>
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-lg font-extrabold text-gray-900 dark:text-gray-100 tracking-tight font-sans">KM {log.km} {log.kmTo && `- ${log.kmTo}`}</h4>
+                              <div className="flex gap-2 mt-2">
+                                <span className="text-[10px] font-bold px-2.5 py-1 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-lg uppercase border border-gray-200 dark:border-slate-700">Lajur {log.lajur}</span>
+                                <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase border", log.status === 'SELESAI' ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-850" : "bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-850")}>
+                                  {log.status === 'SELESAI' ? '100% Selesai' : 'Sedang Proses'}
+                                </span>
                               </div>
                             </div>
-                          )}
+                            <div className="text-right">
+                              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded-lg block mb-1">
+                                {new Date(log.timestamp).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'})} • {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                            {['p1', 'p50', 'p100'].map((k, i) => log.photos[k] && (
+                              <div key={k} className="w-16 h-16 rounded-[14px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 overflow-hidden shrink-0 snap-start relative">
+                                 <img src={URL.createObjectURL(log.photos[k])} className="w-full h-full object-cover" alt="Thumb" />
+                                 <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[8px] px-1.5 rounded-md backdrop-blur-sm font-bold">
+                                   {i === 0 ? '0%' : (i === 1 ? '50%' : '100%')}
+                                 </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleSave} 
-                    className="w-full py-6 bg-primary hover:bg-primary/90 transition-all text-black rounded-3xl font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 mt-10 shadow-2xl shadow-primary/20"
-                  >
-                    <Save size={20} /> Arsip ke Vault
-                  </motion.button>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {activeTab === 'data' && (
-            <motion.div 
-              key="data"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="space-y-4 will-change-transform"
-            >
-              {projectLogs.length > 0 && (
-                <div className="mb-8">
-                  <button
-                    disabled={isSyncing}
-                    onClick={handleSyncData}
-                    className={cn(
-                      "w-full h-16 rounded-[2rem] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 transition-all shadow-2xl",
-                      isOnline ? "bg-emerald-500 text-black shadow-emerald-500/20 active:scale-95" : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
-                    )}
-                  >
-                    {isSyncing ? (
-                      <Activity size={24} className="animate-spin" />
-                    ) : (
-                      <CloudLightning size={24} />
-                    )}
-                    {isSyncing ? "Initializing..." : "Transmit to Cloud"}
-                  </button>
-                </div>
-              )}
-              
-              {projectLogs.length === 0 ? (
-                <div className="text-center py-32 opacity-20 space-y-4">
-                  <Database size={64} className="mx-auto" />
-                  <p className="text-xs font-black uppercase tracking-[0.5em]">No Local Vaults</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 px-6">
-                    <Database size={12} className="text-primary" />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">Local Queue ({projectLogs.length})</span>
-                  </div>
-                  {projectLogs.map((log: any, i: number) => (
-                    <motion.div 
-                      key={log.id} 
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-background/20 backdrop-blur-xl border border-white/10 p-6 rounded-[2.5rem] relative border-l-4 border-l-primary"
-                    >
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                           <h4 className="text-2xl font-black italic uppercase tracking-tighter text-primary">
-                             KM {log.km} {log.kmTo && `- ${log.kmTo}`}
-                           </h4>
-                           <p className="text-[8px] font-bold text-slate-500 uppercase mt-1">Lajur: {log.lajur}</p>
-                        </div>
-                        <span className="text-[8px] font-black bg-white/5 px-2 py-1 rounded-full text-slate-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                  )}
+ 
+                  {syncedEntries.length > 0 && (
+                    <div className="pt-6 space-y-4">
+                      <div className="flex items-center justify-between px-2 mb-2">
+                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-widest flex items-center gap-2">
+                          <CloudLightning size={14} /> Sinkronisasi Sukses Hari Ini
+                        </h3>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                        <div className="bg-black/40 p-4 rounded-xl">
-                          <span className="text-[7px] uppercase font-black text-slate-500 block">Param</span>
-                          <span className="text-xs font-black truncate">{log.val1 || '-'}</span>
-                        </div>
-                        <div className="bg-black/40 p-4 rounded-xl">
-                          <span className="text-[7px] uppercase font-black text-slate-500 block">Delta Qty</span>
-                          <span className="text-sm font-black text-primary italic">{log.val2 || 0}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        {['p1', 'p50', 'p100'].map(k => log.photos[k] && (
-                          <div key={k} className="w-12 h-12 rounded-xl bg-black border border-white/10 overflow-hidden shrink-0">
-                             <img src={log.photos[k]} className="w-full h-full object-cover" alt="Progress" />
+                      {syncedEntries.map((entry: any) => (
+                        <div key={entry.id} className="bg-white/60 dark:bg-slate-900/60 border border-gray-200/50 dark:border-slate-800/80 p-4 rounded-[20px] flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500 dark:text-emerald-400 flex items-center justify-center">
+                               <CheckCircle2 size={16} />
+                            </div>
+                            <div>
+                               <h4 className="text-sm font-bold text-gray-800 dark:text-gray-150 font-sans">KM {entry.km} {entry.kmTo && `- ${entry.kmTo}`}</h4>
+                               <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-450 uppercase tracking-widest mt-0.5">Lajur {entry.lajur || '-'}</p>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-
-              {syncedEntries.length > 0 && (
-                <div className="pt-8 space-y-4">
-                  <div className="flex items-center gap-2 px-6">
-                    <ShieldCheck size={12} className="text-emerald-500" />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">Cloud Synced Today ({syncedEntries.length})</span>
-                  </div>
-                  {syncedEntries.map((entry: any) => (
-                    <div key={entry.id} className="bg-emerald-500/5 backdrop-blur-xl border border-emerald-500/10 p-6 rounded-[2.5rem] relative opacity-60">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                           <h4 className="text-xl font-black italic uppercase tracking-tighter text-emerald-500">
-                             KM {entry.km} {entry.kmTo && `- ${entry.kmTo}`}
-                           </h4>
-                           <p className="text-[7px] font-bold text-slate-500 uppercase mt-1">Lajur: {entry.lajur || '-'}</p>
                         </div>
-                        <span className="text-[7px] font-black bg-emerald-500/10 px-2 py-1 rounded-full text-emerald-600">{new Date(entry.timestamp).toLocaleTimeString()}</span>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                </motion.div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
+            </AnimatePresence>
+          </main>
+        </>
+      )}
+ 
+      {/* ========================================= */}
+      {/* BOTTOM NAVIGATION BAR GAYA GOPAY          */}
+      {/* ========================================= */}
+      {selectedProjectId && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.4)] z-50 px-6 max-w-2xl mx-auto border-t border-gray-100 dark:border-slate-800">
+          <div className="flex justify-between items-center h-[76px] relative">
+            {/* Menu Kiri */}
+            <div className="flex w-full justify-between items-center">
+              <button 
+                onClick={() => { setSelectedProjectId(null); setActiveTab('input'); }}
+                className={cn("flex flex-col items-center gap-1.5 transition-colors w-1/3")}
+              >
+                <div className={cn("p-1.5 rounded-full transition-colors", !selectedProjectId ? "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-450")}>
+                  <Home size={22} className={!selectedProjectId ? "fill-current" : ""} />
+                </div>
+                <span className={cn("text-[10px] font-bold", !selectedProjectId ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Beranda</span>
+              </button>
+ 
+              <button 
+                onClick={() => { if (selectedProjectId) setActiveTab('input'); }}
+                className={cn("flex flex-col items-center gap-1.5 transition-colors w-1/3 relative", 
+                  activeTab === 'input' && selectedProjectId ? "text-blue-600" : "text-gray-400 hover:text-blue-600 dark:hover:text-blue-450",
+                  !selectedProjectId && "opacity-50 cursor-not-allowed")}
+              >
+                <div className="absolute -top-6 bg-blue-600 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(37,99,235,0.4)] border-4 border-[#F8F9FA] dark:border-slate-900">
+                  <Plus size={28} />
+                </div>
+                <span className={cn("text-[10px] font-bold mt-10", activeTab === 'input' && selectedProjectId ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Lapor</span>
+              </button>
+ 
+              <button 
+                onClick={() => { if (selectedProjectId) setActiveTab('data'); }}
+                className={cn("flex flex-col items-center gap-1.5 transition-colors w-1/3 relative", 
+                  activeTab === 'data' && selectedProjectId ? "text-blue-600" : "text-gray-400 hover:text-blue-600 dark:hover:text-blue-450",
+                  !selectedProjectId && "opacity-50 cursor-not-allowed")}
+              >
+                {projectLogs.length > 0 && (
+                  <div className="absolute top-0 right-1/4 translate-x-2 w-4 h-4 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                     <span className="text-[8px] font-bold text-white">{projectLogs.length}</span>
+                  </div>
+                )}
+                <div className={cn("p-1.5 rounded-full transition-colors", activeTab === 'data' ? "bg-blue-50 dark:bg-blue-950/25 text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500")}>
+                  <Folder size={22} className={activeTab === 'data' ? "fill-current" : ""} />
+                </div>
+                <span className={cn("text-[10px] font-bold", activeTab === 'data' ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Data Draft</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

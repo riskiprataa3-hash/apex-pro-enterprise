@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 const firebaseConfig = JSON.parse(readFileSync('./firebase-applet-config.json', 'utf-8'));
 const app = initializeApp(firebaseConfig);
 
-async function findValue(dbId, value) {
+async function findValue(dbId: string | null, value: string) {
   const label = dbId || 'default';
   const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
   const cols = ['inlet_reports', 'marka_reports', 'reports', 'entries', 'inlets'];

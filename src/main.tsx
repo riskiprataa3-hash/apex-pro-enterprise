@@ -3,18 +3,14 @@ import {createRoot} from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
-import { registerSW } from 'virtual:pwa-register';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Register service worker for PWA support
-registerSW({
-  onNeedRefresh() {
-    console.log('Update PWA tersedia kawan');
-  },
-  onOfflineReady() {
-    console.log('Aplikasi siap digunakan offline');
-  },
-});
+// Attempt to globally lock screen orientation to portrait
+if (typeof screen !== 'undefined' && screen.orientation && (screen.orientation as any).lock) {
+   (screen.orientation as any).lock('portrait').catch((err: any) => {
+       console.log('Screen orientation lock failed or not supported:', err);
+   });
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
