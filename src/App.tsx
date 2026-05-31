@@ -9,15 +9,15 @@ import {SplashScreen} from './components/SplashScreen';
 import InstallPWA from './components/InstallPWA';
 
 
-const DashboardPage = lazy(() => import('./components/DashboardPage'));
-const ProjectDetailPage = lazy(() => import('./components/ProjectDetailPage'));
-const ChatCenter = lazy(() => import('./components/ChatCenter').then(module => ({ default: module.ChatCenter })));
-const LiteModePage = lazy(() => import('./components/LiteModePage'));
+import DashboardPage from './components/DashboardPage';
+import ProjectDetailPage from './components/ProjectDetailPage';
+import { ChatCenter } from './components/ChatCenter';
+import LiteModePage from './components/LiteModePage';
 
 const PageLoader = () => (
   <div className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4">
     <Loader2 className="w-8 h-8 text-primary animate-spin" />
-    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest animate-pulse">Memuat Modul...</p>
+    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest animate-pulse">Loading Module...</p>
   </div>
 );
 
@@ -75,18 +75,18 @@ const MainApp: React.FC = () => {
                     <DownloadCloud className="w-10 h-10 text-rose-500 rotate-180" />
                   </motion.div>
                 </div>
-                <h2 className="text-4xl font-black italic uppercase italic tracking-tighter mb-4">Akses Dibatasi.</h2>
+                <h2 className="text-4xl font-black italic uppercase italic tracking-tighter mb-4">Access Restricted.</h2>
                 <p className="max-w-md text-muted-foreground font-medium text-sm leading-relaxed mb-6">
-                  Anda terdeteksi berada di luar area tugas yang telah ditentukan. Akses ke modul operasional ditangguhkan secara otomatis demi keamanan data.
+                  You are detected outside the designated task area. Access to operational modules is automatically suspended for data security.
                 </p>
                 <div className="p-4 bg-muted/50 rounded-2xl border border-white/5 text-[10px] uppercase font-black tracking-widest text-primary mb-8">
-                  Status: Diluar Radius Geofence
+                  Status: Outside Geofence Radius
                 </div>
                 <button 
                   onClick={() => window.location.reload()}
                   className="px-8 py-4 bg-primary text-black font-black uppercase italic tracking-widest rounded-full shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                 >
-                  Segarkan Koordinat GPS
+                  Refresh GPS Coordinates
                 </button>
               </motion.div>
             )}

@@ -39,7 +39,7 @@ export const Button = React.forwardRef<
   );
 });
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { X } from 'lucide-react';
 
 export const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => void; children: React.ReactNode }) => {

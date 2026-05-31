@@ -1643,7 +1643,7 @@ const DashboardPage: React.FC = () => {
                               <Layers className="w-8 h-8 opacity-40" />
                             </div>
                             <h3 className="text-sm font-bold text-gray-500 tracking-wide">
-                              Tidak Ada Projects
+                              Tidak There are Projects
                             </h3>
                             <p className="text-xs text-gray-400 mt-1">
                               Gunakan filter atau buat proyek baru
@@ -2393,7 +2393,7 @@ const DashboardPage: React.FC = () => {
                                 size="sm"
                                 className="h-8 text-[10px] font-bold uppercase rounded-full"
                               >
-                                Lapor Insiden
+                                Report Insiden
                               </Button>
                             )}
                           </div>
@@ -2591,7 +2591,7 @@ const DashboardPage: React.FC = () => {
                             onClick={() => setIsEqRequestModalOpen(true)}
                             className="bg-amber-500 hover:bg-amber-600 rounded-2xl h-12 shadow-lg shadow-amber-500/20 text-white font-bold italic px-8 transition-all hover:scale-105 active:scale-95"
                           >
-                            Ajukan Equipment / Lapor Rusak
+                            Ajukan Equipment / Report Rusak
                           </Button>
                         )}
                       </div>
@@ -2727,7 +2727,7 @@ const DashboardPage: React.FC = () => {
                                     d: "Lakukan pengecekan alat setiap pagi sebelum memulai shift melalui menu HSE.",
                                   },
                                   {
-                                    t: "Lapor Segera",
+                                    t: "Report Segera",
                                     d: "Kerusakan alat saat bekerja wajib segera dilaporkan untuk menghindari kendala produksi.",
                                   },
                                   {
@@ -3463,12 +3463,12 @@ const DashboardPage: React.FC = () => {
                 onClick={() => setIsEqRequestModalOpen(true)}
               >
                 <Wrench className="w-3.5 h-3.5" />
-                Lapor Equipment Kurang/Rusak
+                Report Equipment Kurang/Rusak
               </Button>
 
               <div className="pt-4 space-y-3">
                 <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Foto Bukti Kelengkapan K3
+                  Foto Bukti Completeness K3
                 </label>
                 <div className="flex gap-4">
                   <div
@@ -3737,7 +3737,7 @@ const DashboardPage: React.FC = () => {
           <div className="p-5 space-y-6">
             <div className="text-center">
               <h3 className="text-2xl font-bold italic uppercase tracking-tighter text-rose-500">
-                Lapor Insiden K3
+                Report Insiden K3
               </h3>
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">
                 Digital Incident Reporting System
@@ -5574,7 +5574,7 @@ const LiveOperatorMap = ({ workers }: { workers: Worker[] }) => {
               <MapPin className="w-8 h-8 text-gray-300" />
             </div>
             <p className="text-xs font-bold uppercase text-gray-400 tracking-[0.2em] px-4 py-2">
-              Belum Ada Sinyal Aktif
+              Belum There are Sinyal Aktif
             </p>
           </div>
         ) : (

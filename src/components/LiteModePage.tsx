@@ -38,7 +38,7 @@ const PROJECT_CONFIGS: any = {
     unit1: "Tonnage (t)",
     unit2: "Volume (m³)",
     stages: [
-      { label: "Awal", desc: "Base Case", key: "p1" },
+      { label: "Start", desc: "Base Case", key: "p1" },
       { label: "Proses", desc: "Gelar", key: "p50" },
       { label: "Final", desc: "Selesai", key: "p100" }
     ],
@@ -82,7 +82,7 @@ const PROJECT_CONFIGS: any = {
     unit1: "Parameter 1",
     unit2: "Parameter 2",
     stages: [
-      { label: "0%", desc: "Awal", key: "p1" },
+      { label: "0%", desc: "Start", key: "p1" },
       { label: "50%", desc: "Proses", key: "p50" },
       { label: "100%", desc: "Selesai", key: "p100" }
     ],
@@ -265,7 +265,7 @@ const TollGuardLite = () => {
             return;
         }
         if (currentProject.category === 'PAINTING' && !form.kmTo) {
-            alert("KM Akhir wajib diisi!");
+            alert("KM End wajib diisi!");
             return;
         }
     
@@ -312,8 +312,8 @@ const TollGuardLite = () => {
           {/* Top Header */}
           <div className="flex justify-between items-center mb-8 mt-4">
              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight font-sans">Halo, Petugas! 👋</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih proyek untuk memulai aktivitas</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight font-sans">Hello, Officer! 👋</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Select a project to start activity</p>
              </div>
              <button 
                onClick={() => navigate('/')} 
@@ -330,7 +330,7 @@ const TollGuardLite = () => {
              <div className="flex justify-between items-center mb-6 relative z-10">
                 <div className="flex items-center gap-2">
                    <ShieldCheck size={20} className="text-blue-100" />
-                   <span className="font-semibold text-sm tracking-wide">Status Ruang Kerja</span>
+                   <span className="font-semibold text-sm tracking-wide">Workspace Status</span>
                 </div>
                 <div className="bg-white/20 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 backdrop-blur-md">
                    <div className={cn("w-2 h-2 rounded-full shadow-sm", isOnline ? "bg-emerald-400 animate-pulse" : "bg-rose-400")} />
@@ -338,18 +338,18 @@ const TollGuardLite = () => {
                 </div>
              </div>
              <p className="text-xs text-blue-50 max-w-[220px] relative z-10 leading-relaxed font-semibold mb-1">
-                {isOnline ? 'Sistem terhubung ke server utama. Sinkronisasi data real-time aktif.' : 'Koneksi terputus. Data akan disimpan secara lokal terlebih dahulu.'}
+                {isOnline ? 'System connected to main server. Real-time data sync active.' : 'Connection lost. Data will be saved locally first.'}
              </p>
              {projectLogs.length > 0 && (
                 <div className="mt-4 flex gap-2 relative z-10">
                   <div className="text-[10px] font-bold bg-white/20 px-2.5 py-1.5 rounded-lg border border-border/50">
-                    {projectLogs.length} DRAFT TERTUNDA
+                    {projectLogs.length} PENDING DRAFTS
                   </div>
                 </div>
              )}
           </div>
  
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 px-1">Daftar Proyek Aktif</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 px-1">Active Project List</h2>
           <div className="space-y-3 pb-12">
             {projects.map((p: any, idx: number) => (
               <motion.button 
@@ -384,8 +384,8 @@ const TollGuardLite = () => {
         <>
           {/* Header Simple */}
           <div className="mb-6 pt-4 px-2">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Laporan Baru</h1>
-            <p className="text-gray-400 dark:text-gray-450 text-sm">Isi data berurutan ke bawah</p>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">New Report</h1>
+            <p className="text-gray-400 dark:text-gray-450 text-sm">Fill in the data sequentially downwards</p>
           </div>
 
           <main {...swipeHandlers} className="max-w-2xl mx-auto px-4 w-full flex-1">
@@ -404,15 +404,15 @@ const TollGuardLite = () => {
                         <div className="w-24 h-24 bg-blue-50 dark:bg-blue-950/40 rounded-full flex items-center justify-center mx-auto mb-6">
                           <ShieldCheck size={48} className="text-blue-600 dark:text-blue-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Protokol K3</h3>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">HSE Protocol</h3>
                         <p className="text-sm text-gray-400 dark:text-gray-405 leading-relaxed mb-8">
-                          Pastikan Anda menggunakan Alat Pelindung Diri (APD) secara lengkap sebelum mencatat data.
+                          Ensure you wear complete Personal Protective Equipment (PPE) before recording data.
                         </p>
                         <button 
                           onClick={() => setIsSafetyDone(true)} 
                           className="w-full py-4 bg-blue-600 hover:bg-blue-700 transition-all active:scale-95 text-white font-bold rounded-2xl shadow-sm text-base"
                         >
-                          Saya Siap & Memakai APD
+                          I am Ready & Wearing PPE
                         </button>
                       </div>
                     </div>
@@ -421,12 +421,12 @@ const TollGuardLite = () => {
                       
                       {/* Bagian 1: Lokasi */}
                       <div>
-                        <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">1. Titik Lokasi (STA)</label>
+                        <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">1. Location Point (STA)</label>
                         {currentProject?.category === 'PAINTING' ? (
                           <div className="flex items-center gap-3">
-                            <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="STA Awal" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="STA Start" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
                             <span className="text-gray-300 dark:text-gray-700 font-bold">-</span>
-                            <input type="text" value={form.kmTo} onChange={e => setForm({...form, kmTo: e.target.value})} placeholder="STA Akhir" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
+                            <input type="text" value={form.kmTo} onChange={e => setForm({...form, kmTo: e.target.value})} placeholder="STA End" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
                           </div>
                         ) : (
                           <input type="text" value={form.km} onChange={e => setForm({...form, km: e.target.value})} placeholder="Contoh: 10+200 B" className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-base font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
@@ -454,7 +454,7 @@ const TollGuardLite = () => {
                       {/* Bagian 2: Dimensi (If Asphalt) */}
                       {currentProject?.category === 'ASPHALT' && (
                         <div>
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">2. Dimensi & Ukuran</label>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">2. Dimensions & Sizes</label>
                           <div className="grid grid-cols-3 gap-3">
                             <input type="number" placeholder="Panjang (m)" value={form.panjang} onChange={e => setForm({...form, panjang: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-sm font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
                             <input type="number" placeholder="Lebar (m)" value={form.lebar} onChange={e => setForm({...form, lebar: e.target.value})} className="w-full bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-150 text-sm font-medium rounded-2xl p-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500" />
@@ -466,7 +466,7 @@ const TollGuardLite = () => {
                       {/* Bagian 3: Parameters */}
                       {config && (
                         <div>
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">3. Detail Output</label>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">3. Detailed Output</label>
                           <div className="flex flex-col gap-3">
                             <div className="relative">
                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-wider">{config.unit1}</span>
@@ -524,7 +524,7 @@ const TollGuardLite = () => {
 
                       {/* Bagian 5: Status & Note */}
                       <div className="pt-2 border-t border-gray-50 dark:border-slate-800">
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">5. Status Penyelesaian</label>
+                          <label className="text-[10px] font-bold text-gray-400 dark:text-gray-450 uppercase tracking-widest mb-3 block">5. Completion Status</label>
                           <div className="flex bg-gray-50 dark:bg-slate-850 p-1.5 rounded-2xl gap-1 mb-4 border border-gray-100/50 dark:border-slate-800/40">
                             <button 
                               onClick={() => setForm({...form, status: 'PROSES'})}
@@ -542,14 +542,14 @@ const TollGuardLite = () => {
                                 form.status === 'SELESAI' ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-gray-200/50 dark:border-slate-805" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-350"
                               )}
                             >
-                              Selesai 100%
+                              100% Completed
                             </button>
                           </div>
                           
                           <textarea 
                             value={form.note} 
                             onChange={e => setForm({...form, note: e.target.value})} 
-                            placeholder="Catatan kendala lapangan..." 
+                            placeholder="Field obstacle notes..." 
                             className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl p-4 text-sm font-medium text-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-100 min-h-[100px] resize-none placeholder:text-gray-405 dark:placeholder:text-gray-500"
                           />
                       </div>
@@ -565,10 +565,10 @@ const TollGuardLite = () => {
                         className="w-full bg-blue-600 text-white font-bold py-5 rounded-[24px] shadow-lg shadow-blue-600/30 flex items-center justify-center gap-3 hover:bg-blue-700 transition-colors uppercase tracking-widest text-sm"
                       >
                         <Save size={18} />
-                        <span>Simpan ke Draft Lokal</span>
+                        <span>Save to Local Draft</span>
                       </motion.button>
                       <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4 leading-relaxed font-semibold">
-                        Data akan disimpan di dalam perangkat (Offline).<br/> Lakukan sinkronisasi ke server melalui menu <b className="text-gray-750 dark:text-gray-300">Data</b>.
+                        Data will be saved on device (Offline).<br/> Perform synchronization to server via menu <b className="text-gray-750 dark:text-gray-300">Data</b>.
                       </p>
                     </div>
                   )}
@@ -591,8 +591,8 @@ const TollGuardLite = () => {
                            <Database size={24} />
                          </div>
                          <div>
-                            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Menunggu Sinkronisasi</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Ada {projectLogs.length} data laporan lokal yang belum diunggah ke server.</p>
+                            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Waiting for Sync</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">There are {projectLogs.length} local report data not yet uploaded to server.</p>
                          </div>
                       </div>
                       <button
@@ -606,7 +606,7 @@ const TollGuardLite = () => {
                         )}
                       >
                         {isSyncing ? <Activity size={18} className="animate-spin" /> : <CloudLightning size={18} />}
-                        {isSyncing ? "Mengirim Data..." : `Sinkronkan Semua Sekarang`}
+                        {isSyncing ? "Sending Data..." : `Sync All Now`}
                       </button>
                     </div>
                   )}
@@ -618,14 +618,14 @@ const TollGuardLite = () => {
                         <CheckCircle2 size={40} className="text-emerald-500" />
                       </div>
                       <div className="relative z-10">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Semua Tersinkronisasi</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Tidak ada data tertunda di perangkat Anda. Kerja bagus!</p>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">All Synced</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">No pending data on your device. Great job!</p>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <h3 className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-widest ml-2 flex items-center gap-2">
-                        <History size={14} /> Daftar Antrean ({projectLogs.length})
+                        <History size={14} /> Queue List ({projectLogs.length})
                       </h3>
                       {projectLogs.map((log: any) => (
                         <div 
@@ -638,7 +638,7 @@ const TollGuardLite = () => {
                               <div className="flex gap-2 mt-2">
                                 <span className="text-[10px] font-bold px-2.5 py-1 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-lg uppercase border border-gray-200 dark:border-slate-700">Lajur {log.lajur}</span>
                                 <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase border", log.status === 'SELESAI' ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-850" : "bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-850")}>
-                                  {log.status === 'SELESAI' ? '100% Selesai' : 'Sedang Proses'}
+                                  {log.status === 'SELESAI' ? '100% Selesai' : 'In Progress'}
                                 </span>
                               </div>
                             </div>
@@ -667,7 +667,7 @@ const TollGuardLite = () => {
                     <div className="pt-6 space-y-4">
                       <div className="flex items-center justify-between px-2 mb-2">
                         <h3 className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-widest flex items-center gap-2">
-                          <CloudLightning size={14} /> Sinkronisasi Sukses Hari Ini
+                          <CloudLightning size={14} /> Successful Sync Today
                         </h3>
                       </div>
                       {syncedEntries.map((entry: any) => (
@@ -719,7 +719,7 @@ const TollGuardLite = () => {
                 <div className="absolute -top-6 bg-blue-600 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(37,99,235,0.4)] border-4 border-[#F8F9FA] dark:border-slate-900">
                   <Plus size={28} />
                 </div>
-                <span className={cn("text-[10px] font-bold mt-10", activeTab === 'input' && selectedProjectId ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Lapor</span>
+                <span className={cn("text-[10px] font-bold mt-10", activeTab === 'input' && selectedProjectId ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Report</span>
               </button>
  
               <button 
@@ -736,7 +736,7 @@ const TollGuardLite = () => {
                 <div className={cn("p-1.5 rounded-full transition-colors", activeTab === 'data' ? "bg-blue-50 dark:bg-blue-950/25 text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500")}>
                   <Folder size={22} className={activeTab === 'data' ? "fill-current" : ""} />
                 </div>
-                <span className={cn("text-[10px] font-bold", activeTab === 'data' ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Data Draft</span>
+                <span className={cn("text-[10px] font-bold", activeTab === 'data' ? "text-blue-600" : "text-gray-400 dark:text-gray-500")}>Draft Data</span>
               </button>
             </div>
           </div>
