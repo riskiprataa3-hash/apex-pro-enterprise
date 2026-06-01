@@ -316,7 +316,7 @@ const DashboardPage: React.FC = () => {
     isSuperAdmin,
     handleLogout,
     deferredPrompt,
-    handleInstallApp,
+    
     tasks,
     handleCreateTask,
     isCreatingProject,
@@ -1383,18 +1383,6 @@ const DashboardPage: React.FC = () => {
             >
               <Download className="w-4 h-4" />
             </Button>
-
-            {!isStandalone && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleInstallApp}
-                className="rounded-full w-10 h-10 md:hidden bg-indigo-600 border-none shadow-md text-white hover:bg-indigo-700 transition-all flex items-center justify-center ring-1 ring-black/5"
-                title="Install Aplikasi"
-              >
-                <Smartphone className="w-4 h-4" strokeWidth={2.5} />
-              </Button>
-            )}
 
             <Button
               variant="ghost"

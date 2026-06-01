@@ -615,9 +615,7 @@ interface AppContextType {
   handleArchiveEntry: (entryId: string, archive?: boolean) => Promise<void>;
   deferredPrompt: any;
   setDeferredPrompt: (val: any) => void;
-  handleInstallApp: () => Promise<void>;
-  isInstallModalOpen: boolean;
-  setIsInstallModalOpen: (val: boolean) => void;
+
   
   // Access Key Management for Pelaksana
   activeAccessKeys: any[];
@@ -1231,54 +1229,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('theme');
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-
-  useEffect(() => {
-    const handleBeforeInstall = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
-
-  const [isStandalone, setIsStandalone] = React.useState(false);
-
-  React.useEffect(() => {
-    // Check if running as installed app
-    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
-      setIsStandalone(true);
-    }
-  }, []);
-
-  const handleInstallApp = async () => {
-    // If in iframe, always just open in new tab
-    if (window.self !== window.top) {
-      alert('🚀 INISIASI NATIVE ENGINE (1/2):\n\nKeamanan browser memblokir instalasi dari dalam "Preview".\n\nKlik OK untuk membuka aplikasi ke Tab New, lalu klik tombol "Download/Install" lagi di sana agar tombol "Pasang Native" muncul.');
-      window.open(window.location.href, '_blank');
-      return;
-    }
-    
-    // If we have the prompt, try it
-    if (deferredPrompt) {
-      try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          setDeferredPrompt(null);
-          setIsInstallModalOpen(false);
-          return;
-        }
-      } catch(e) {
-        console.warn("PWA prompt failed:", e);
-      }
-    }
-
-    // If no prompt or it failed/ignored, show the guidebook
-    setIsInstallModalOpen(true);
-  };
-
+  
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -4824,7 +4775,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     isOutsideGeofence,
     isQuotaBlocked, quotaBlockedMessage, handleForceClearSessions,
     needsInduction,
-    deferredPrompt, setDeferredPrompt, handleInstallApp, isInstallModalOpen, setIsInstallModalOpen,
+    deferredPrompt, setDeferredPrompt, 
     editingEntryId, setEditingEntryId, handleEditEntry,
     showArchived, setShowArchived, handleArchiveEntry,
     activeAccessKeys, generatePelaksanaKey,

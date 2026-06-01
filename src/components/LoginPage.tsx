@@ -21,7 +21,7 @@ import { ApexLogo } from './ui/ApexLogo';
 
 const LoginPage: React.FC = () => {
   const { 
-    email, setEmail, password, setPassword, authError, handleLogin, handleGoogleLogin, isAuthLoading, deferredPrompt, handleInstallApp, isInstallModalOpen, setIsInstallModalOpen
+    email, setEmail, password, setPassword, authError, handleLogin, handleGoogleLogin, isAuthLoading, 
   } = useApp();
   const [showPassword, setShowPassword] = useState(false);
   const [loginMode, setLoginMode] = useState<'admin' | 'pelaksana'>('pelaksana');

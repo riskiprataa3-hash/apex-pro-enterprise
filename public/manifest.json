@@ -38,7 +38,7 @@
       "url": "/?source=pwa",
       "icons": [
         {
-          "src": "logo192.png",
+          "src": "/logo192.png",
           "type": "image/png",
           "sizes": "192x192"
         }
@@ -47,14 +47,14 @@
   ],
   "screenshots": [
     {
-      "src": "screenshot-narrow.svg",
+      "src": "/screenshot-narrow.svg",
       "type": "image/svg+xml",
       "sizes": "720x1280",
       "form_factor": "narrow",
       "label": "CPM Mobile Interface"
     },
     {
-      "src": "screenshot-wide.svg",
+      "src": "/screenshot-wide.svg",
       "type": "image/svg+xml",
       "sizes": "1280x720",
       "form_factor": "wide",
@@ -63,28 +63,50 @@
   ],
   "icons": [
     {
-      "src": "pwa-64x64.png",
+      "src": "/pwa-64x64.png",
       "type": "image/png",
       "sizes": "64x64",
       "purpose": "any"
     },
     {
-      "src": "logo192.png",
+      "src": "/logo192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "logo512.png",
+      "src": "/logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"
     },
     {
-      "src": "maskable-icon-512x512.png",
+      "src": "/maskable-icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "*.app"
+    },
+    {
+      "origin": "*.run.app"
+    },
+    {
+      "origin": "*.firebaseapp.com"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/csv": [".csv"],
+        "application/pdf": [".pdf"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"]
+      }
     }
   ]
 }

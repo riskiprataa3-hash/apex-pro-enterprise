@@ -6,7 +6,6 @@ import LoginPage from './components/LoginPage';
 import { DownloadCloud, Loader2 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import {SplashScreen} from './components/SplashScreen';
-import InstallPWA from './components/InstallPWA';
 
 
 import DashboardPage from './components/DashboardPage';
@@ -56,7 +55,6 @@ const MainApp: React.FC = () => {
           className="min-h-screen flex flex-col overflow-x-hidden selection:bg-primary/30 relative z-10 w-full text-foreground"
         >
           <Toaster position="top-center" expand={true} richColors closeButton />
-          <InstallPWA />
           
           {/* Geofence Block Overlay */}
           <AnimatePresence>

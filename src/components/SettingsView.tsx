@@ -6,7 +6,7 @@ import { updatePassword, getAuth, updateProfile } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export const SettingsView = () => {
-  const { user, userProfile, isAdmin, handleSendEmailVerification, deferredPrompt, handleInstallApp, adminAccessCode, updateAdminAccessCode, headerText, handleUpdateHeaderText, announcementText, handleUpdateAnnouncementText, handleUpdateMyProfile } = useApp();
+  const { user, userProfile, isAdmin, handleSendEmailVerification, deferredPrompt, adminAccessCode, updateAdminAccessCode, headerText, handleUpdateHeaderText, announcementText, handleUpdateAnnouncementText, handleUpdateMyProfile } = useApp();
   const isOwnerOrDev = user?.email && ['developmentshaka@gmail.com', 'development.shaka@gmail.com'].includes(user.email.toLowerCase());
   const isTrustedAccount = isOwnerOrDev || (user?.email && /^(admin|pelaksana)\.shaka\d{0,2}@gmail\.com$/.test(user.email.toLowerCase()));
 
