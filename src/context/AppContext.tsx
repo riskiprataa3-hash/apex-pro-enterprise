@@ -587,7 +587,6 @@ interface AppContextType {
   quotaExceeded: boolean;
   setQuotaExceeded: (v: boolean) => void;
   isOutsideGeofence: boolean;
-  isStandalone: boolean;
   isCreatingProject: boolean;
   isCreatingTask: boolean;
   handleArchiveTask: (id: string, arch?: boolean) => Promise<void>;
@@ -613,9 +612,6 @@ interface AppContextType {
   showArchived: boolean;
   setShowArchived: (val: boolean) => void;
   handleArchiveEntry: (entryId: string, archive?: boolean) => Promise<void>;
-  deferredPrompt: any;
-  setDeferredPrompt: (val: any) => void;
-
   
   // Access Key Management for Pelaksana
   activeAccessKeys: any[];
@@ -4775,14 +4771,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     isOutsideGeofence,
     isQuotaBlocked, quotaBlockedMessage, handleForceClearSessions,
     needsInduction,
-    deferredPrompt, setDeferredPrompt, 
     editingEntryId, setEditingEntryId, handleEditEntry,
     showArchived, setShowArchived, handleArchiveEntry,
     activeAccessKeys, generatePelaksanaKey,
     adminAccessCode, updateAdminAccessCode,
     showArchivedProjects, setShowArchivedProjects, handleArchiveProject,
-    showArchivedTasks, setShowArchivedTasks,
-    isStandalone
+    showArchivedTasks, setShowArchivedTasks
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

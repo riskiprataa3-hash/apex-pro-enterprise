@@ -310,12 +310,10 @@ const DashboardPage: React.FC = () => {
     currentProject,
     currentProjectId,
     exportAllProjectsExcel,
-    isStandalone,
     user,
     isAdmin,
     isSuperAdmin,
     handleLogout,
-    deferredPrompt,
     
     tasks,
     handleCreateTask,
@@ -1313,7 +1311,7 @@ const DashboardPage: React.FC = () => {
                 className={cn(
                   "w-2 h-2 rounded-full shadow-sm",
                   isOnline
-                    ? isStandalone
+                    ? window.matchMedia('(display-mode: standalone)').matches
                       ? "bg-indigo-500 animate-pulse"
                       : "bg-emerald-500 animate-pulse"
                     : "bg-rose-500",
@@ -1321,7 +1319,7 @@ const DashboardPage: React.FC = () => {
               />
               <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
                 {isOnline
-                  ? isStandalone
+                  ? window.matchMedia('(display-mode: standalone)').matches
                     ? "Native Core"
                     : "Online"
                   : "Offline"}
