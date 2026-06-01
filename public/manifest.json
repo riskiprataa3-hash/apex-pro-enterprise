@@ -1,8 +1,8 @@
 {
   "short_name": "CPM",
   "name": "CPM (Core Pavement Management)",
-  "id": "/?source=pwa",
-  "start_url": "/?source=pwa",
+  "id": "/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -35,7 +35,7 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View operations dashboard",
-      "url": "/?source=pwa",
+      "url": "/",
       "icons": [
         {
           "src": "/logo192.png",
