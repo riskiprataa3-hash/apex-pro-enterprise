@@ -69,7 +69,7 @@ const ProjectDetailPage: React.FC = () => {
     lebar, setWidth, tebal, setThickness, location,
     photos0, setPhotos0, photos50, setPhotos50, photos100, setPhotos100, uploadingPhotos, isEntryArchived, setIsEntryArchived, removePhoto, handleFileUpload, handleAddEntry, resetEntryForm,
     isUploading, entries, searchQuery, setSearchQuery, startDate, endDate,
-    isAddingEntry, setStartDate, setEndDate, setFilterLane, filterArah, setFilterArah,
+    isAddingEntry, setStartDate, setEndDate, setFilterLane, filterArah, setFilterArah, filterRanting, setFilterRanting,
     filteredEntries, totalTonase, totalVolume,
     selectedEntryPhotos, setSelectedEntryPhotos, handleDeleteEntry, exportExcel, handleRemoveDuplicateEntries,
     materialType, setMaterialType, user, isAdmin, isAudit, isDarkMode,
@@ -259,7 +259,7 @@ const ProjectDetailPage: React.FC = () => {
       return sum + (Number(e.qty) || 0);
     }, 0);
 
-    const manualAddition = isPekanbaruDumai ? 401 : 0;
+    const manualAddition = 0;
     const realized = dbEntriesQty + manualAddition;
     
     const remaining = Math.max(0, target - realized);
@@ -290,7 +290,7 @@ const ProjectDetailPage: React.FC = () => {
   const totalDbActive = (entries || []).filter(e => !e.isArchived).length;
   const isFiltered = filteredEntries.length !== totalDbActive;
   
-  const dynamicsOffset = (isPekanbaruDumaiInlet && !isFiltered) ? 401 : 0;
+  const dynamicsOffset = 0;
   const finalRealizationStr = (baseRealization + dynamicsOffset).toFixed(0);
 
   return (
@@ -893,6 +893,16 @@ const ProjectDetailPage: React.FC = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input placeholder="Filter Data (KM, Lane)..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-12 bg-background flex-1" />
                       </div>
+                      <select 
+                        value={filterRanting} 
+                        onChange={(e) => setFilterRanting(e.target.value)}
+                        className="w-full sm:w-32 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent outline-none h-10 ring-offset-background"
+                      >
+                        <option value="">Semua Ranting</option>
+                        <option value="Ranting 1">Ranting 1</option>
+                        <option value="Ranting 2">Ranting 2</option>
+                        <option value="Ranting 3">Ranting 3 (Dumai)</option>
+                      </select>
                       <select 
                         value={filterArah} 
                         onChange={(e) => setFilterArah(e.target.value)}

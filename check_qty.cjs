@@ -1,5 +1,5 @@
 const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, getDocs } = require('firebase/firestore');
+const { getFirestore, collection, getDocs, doc } = require('firebase/firestore');
 const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
 const fs = require('fs');
 
@@ -12,18 +12,7 @@ async function run() {
   await signInWithEmailAndPassword(auth, 'adminshaka01@gmail.com', 'Riski1310');
   const projectId = 'TbtZli8c6XY3AGtWjls5';
   const snapshot = await getDocs(collection(db, 'projects', projectId, 'entries'));
-  
-  let dateCounts = {};
-  snapshot.forEach(d => {
-       const data = d.data();
-       const dString = data.dateDisplay || data.tanggal || data.createdDay || 'unknown';
-       dateCounts[dString] = (dateCounts[dString] || 0) + 1;
-  });
-  
-  console.log('Entries by date:');
-  Object.keys(dateCounts).sort().forEach(k => {
-      console.log(`- ${k}: ${dateCounts[k]}`);
-  });
+  console.log('Total entries in project:', snapshot.size);
   process.exit(0);
 }
 run();

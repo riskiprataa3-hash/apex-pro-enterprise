@@ -10,20 +10,17 @@ const db = getFirestore(app, 'shaka-v4');
 
 async function run() {
   await signInWithEmailAndPassword(auth, 'adminshaka01@gmail.com', 'Riski1310');
+  const rawSnap = await getDocs(collection(db, 'inlet_reports'));
   const projectId = 'TbtZli8c6XY3AGtWjls5';
   const snapshot = await getDocs(collection(db, 'projects', projectId, 'entries'));
-  
-  let dateCounts = {};
+  console.log('Total inlet_reports:', rawSnap.size);
+  console.log('Total entries:', snapshot.size);
+
+  let manual = 0;
   snapshot.forEach(d => {
-       const data = d.data();
-       const dString = data.dateDisplay || data.tanggal || data.createdDay || 'unknown';
-       dateCounts[dString] = (dateCounts[dString] || 0) + 1;
+       if (d.data().isManual) manual++;
   });
-  
-  console.log('Entries by date:');
-  Object.keys(dateCounts).sort().forEach(k => {
-      console.log(`- ${k}: ${dateCounts[k]}`);
-  });
+  console.log('Total manual entries:', manual);
   process.exit(0);
 }
 run();

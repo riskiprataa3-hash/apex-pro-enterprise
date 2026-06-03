@@ -12,7 +12,7 @@ export const NeoDashboard = () => {
   // Realized
   const allEntries = inletProject?.entries || [];
   const realizedAsli = allEntries.filter(e => !e.isArchived).reduce((acc, e) => acc + (Number(e.qty) || 0), 0);
-  const totalCompleted = realizedAsli + 401;
+  const totalCompleted = realizedAsli;
 
   // Target
   const target = inletProject?.targetQty || 1839; // Diisi ulang jika berbeda
@@ -166,7 +166,7 @@ export const NeoDashboard = () => {
                 let done = p.entries?.filter(e => !e.isArchived).reduce((acc, e) => acc + (Number(e.qty) || 0), 0) || 0;
 
                 if (p.name?.toUpperCase().includes('PEKANBARU-DUMAI') && p.type === 'inlet') {
-                  done += 401;
+                  
                 }
 
                 const perc = Math.min(100, Math.round((done / target) * 100)) || 0;

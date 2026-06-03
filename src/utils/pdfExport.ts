@@ -255,7 +255,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
     return sum + (Number(e.qty) || 0);
   }, 0);
 
-  const manualAddition = isPekanbaruDumai ? 401 : 0;
+  const manualAddition = 0;
 
   const realizedQty = dbQtyForPDF + manualAddition;
   const remainingQty = Math.max(0, targetQty - realizedQty);

@@ -128,9 +128,12 @@ const LiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('tg_logs_v6', JSON.stringify(logs));
     if (navigator.geolocation && !location) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      }, null, { enableHighAccuracy: true });
+      const onSuccess = (pos: any) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      navigator.geolocation.getCurrentPosition(onSuccess, (err) => {
+         if (err.code === 3) {
+             navigator.geolocation.getCurrentPosition(onSuccess, null, { enableHighAccuracy: false, timeout: 15000 });
+         }
+      }, { enableHighAccuracy: true, timeout: 10000 });
     }
   }, [logs, location]);
 

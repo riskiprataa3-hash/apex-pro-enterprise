@@ -10,19 +10,9 @@ const db = getFirestore(app, 'shaka-v4');
 
 async function run() {
   await signInWithEmailAndPassword(auth, 'adminshaka01@gmail.com', 'Riski1310');
-  const projectId = 'TbtZli8c6XY3AGtWjls5';
-  const snapshot = await getDocs(collection(db, 'projects', projectId, 'entries'));
-  
-  let dateCounts = {};
+  const snapshot = await getDocs(collection(db, 'projects'));
   snapshot.forEach(d => {
-       const data = d.data();
-       const dString = data.dateDisplay || data.tanggal || data.createdDay || 'unknown';
-       dateCounts[dString] = (dateCounts[dString] || 0) + 1;
-  });
-  
-  console.log('Entries by date:');
-  Object.keys(dateCounts).sort().forEach(k => {
-      console.log(`- ${k}: ${dateCounts[k]}`);
+       console.log('Project ID:', d.id, 'Name:', d.data().name);
   });
   process.exit(0);
 }

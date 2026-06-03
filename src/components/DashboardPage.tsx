@@ -953,7 +953,7 @@ const DashboardPage: React.FC = () => {
 
         if (p.type === "inlet") {
           const isPekanbaruDumaiInlet = p.name?.toUpperCase()?.includes("PEKANBARU-DUMAI");
-          const manualAddition = isPekanbaruDumaiInlet ? 401 : 0;
+          const manualAddition = 0;
           inletsTotal += projectDbQty + manualAddition;
         }
       }
@@ -1109,10 +1109,17 @@ const DashboardPage: React.FC = () => {
         try {
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, {
+              navigator.geolocation.getCurrentPosition(resolve, (err) => {
+                 if (err.code === 3) {
+                     navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: false, timeout: 15000 });
+                 } else {
+                     reject(err);
+                 }
+              }, {
+                enableHighAccuracy: true,
                 timeout: 10000,
               });
-            },
+            }
           );
           locationStr = `${position.coords.latitude}, ${position.coords.longitude}`;
         } catch (e) {
@@ -4006,12 +4013,22 @@ const DashboardPage: React.FC = () => {
                                 setWGeoLng(pos.coords.longitude.toFixed(6));
                               },
                               (err) => {
-                                addNotification(
-                                  "GPS Failed",
-                                  "Failed mengambil lokasi saat ini.",
-                                  "error",
-                                );
+                                if (err.code === 3) {
+                                   navigator.geolocation.getCurrentPosition((pos) => {
+                                      setWGeoLat(pos.coords.latitude.toFixed(6));
+                                      setWGeoLng(pos.coords.longitude.toFixed(6));
+                                   }, () => {
+                                      addNotification("GPS Failed", "Failed mengambil lokasi saat ini.", "error");
+                                   }, { enableHighAccuracy: false, timeout: 15000 });
+                                } else {
+                                  addNotification(
+                                    "GPS Failed",
+                                    "Failed mengambil lokasi saat ini.",
+                                    "error",
+                                  );
+                                }
                               },
+                              { enableHighAccuracy: true, timeout: 10000 }
                             );
                           }
                         }}
@@ -5334,7 +5351,14 @@ const AttendanceSettingsCard = ({
                     navigator.geolocation.getCurrentPosition((p) => {
                       setLat(parseFloat(p.coords.latitude.toFixed(6)));
                       setLng(parseFloat(p.coords.longitude.toFixed(6)));
-                    });
+                    }, (err) => {
+                       if(err.code === 3) {
+                         navigator.geolocation.getCurrentPosition((p) => {
+                           setLat(parseFloat(p.coords.latitude.toFixed(6)));
+                           setLng(parseFloat(p.coords.longitude.toFixed(6)));
+                         }, () => {}, { enableHighAccuracy: false, timeout: 10000 });
+                       }
+                    }, { enableHighAccuracy: true, timeout: 10000 });
                   }
                 }}
                 className="shrink-0 h-12 px-4 text-[10px] font-bold uppercase rounded-xl border-primary/30 text-primary"
@@ -5665,7 +5689,7 @@ const ProjectCard = React.memo(
           return sum + (Number(e.qty) || 0);
         }, 0);
 
-        const manualAddition = isPekanbaruDumaiInlet ? 401 : 0;
+        const manualAddition = 0;
         const realized = dbQty + manualAddition;
 
         const prog = Math.min(

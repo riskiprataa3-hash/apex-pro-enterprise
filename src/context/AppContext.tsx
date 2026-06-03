@@ -11,6 +11,7 @@ import { notifyTaskUpdateToExecutant, notifyAdminsForNewIncident, notifyAdminsFo
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 import { fetchImageAsBase64 } from '../utils/excelExport';
+import { getRantingClass } from '../utils/ranting';
 
 export enum OperationType {
   CREATE = 'create',
@@ -487,6 +488,8 @@ interface AppContextType {
   setFilterLane: (l: string) => void;
   filterArah: string;
   setFilterArah: (a: string) => void;
+  filterRanting: string;
+  setFilterRanting: (r: string) => void;
   startDate: string;
   setStartDate: (d: string) => void;
   endDate: string;
@@ -1066,9 +1069,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addNotification('Sistem GPS', 'Sedang mengambil lokasi presensi (pastikan GPS HP aktif)...', 'info');
       try {
         const pos: any = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { 
+          const fallbackOptions = { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 };
+          navigator.geolocation.getCurrentPosition(resolve, (err) => {
+            if (err.code === 3) {
+              console.warn('GPS Timeout presensi, trying fallback');
+              navigator.geolocation.getCurrentPosition(resolve, reject, fallbackOptions);
+            } else {
+              reject(err);
+            }
+          }, { 
             enableHighAccuracy: true, 
-            timeout: 10000,
+            timeout: 12000,
             maximumAge: 0
           });
         });
@@ -1268,6 +1279,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLane, setFilterLane] = useState('');
   const [filterArah, setFilterArah] = useState('');
+  const [filterRanting, setFilterRanting] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -2072,7 +2084,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     try {
       const pos: any = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000 });
+        navigator.geolocation.getCurrentPosition(resolve, (err) => {
+          if (err.code === 3) {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+          } else {
+            reject(err);
+          }
+        }, { enableHighAccuracy: true, timeout: 6000 });
       });
       lat = pos.coords.latitude;
       lng = pos.coords.longitude;
@@ -3082,8 +3100,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => console.warn('Initial GPS failure:', err.message),
-        { enableHighAccuracy: true, timeout: 10000 }
+        (err) => {
+          if (err.code === 3) {
+            navigator.geolocation.getCurrentPosition(
+               (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+               (fallbackErr) => console.warn('Initial GPS fallback failure:', fallbackErr.message),
+               { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+            );
+          } else {
+            console.warn('Initial GPS failure:', err.message);
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
   }, [user]);
@@ -3095,25 +3123,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     setIsLocating(true);
     addNotification('Sistem GPS', 'Sedang mencari lokasi... pastikan GPS aktif.', 'info');
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setIsLocating(false);
-        addNotification('Sistem GPS', 'Koordinat satelit diperbarui.', 'success');
-      },
-      (err) => {
-        console.error('Manual GPS Error:', err.message);
-        if (err.code === 1) {
-          addNotification('Failed Akses GPS', 'Akses lokasi ditolak. Buka pengaturan aplikasi (Browser/PWA) dan izinkan Location.', 'error');
-        } else if (err.code === 2) {
-           addNotification('Failed Akses GPS', 'Sinyal GPS hilang atau fitur Location di HP Anda dimatikan.', 'error');
-        } else {
-          addNotification('Sistem GPS', 'Failed memuat satelit. Coba di tempat lebih terbuka.', 'warning');
-        }
-        setIsLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
+    const geoOptions = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
+    const fallbackOptions = { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 };
+    
+    const getPos = (options: any, isFallback = false) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsLocating(false);
+          addNotification('Sistem GPS', isFallback ? 'Satelit lemah. Menggunakan estimasi jaringan.' : 'Koordinat satelit diperbarui.', 'success');
+        },
+        (err) => {
+          if (!isFallback && err.code === 3) {
+            console.warn('GPS Timeout, trying fallback:', err.message);
+            getPos(fallbackOptions, true);
+            return;
+          }
+          console.error('Manual GPS Error:', err.message);
+          if (err.code === 1) {
+            addNotification('Failed Akses GPS', 'Akses lokasi ditolak. Buka pengaturan aplikasi (Browser/PWA) dan izinkan Location.', 'error');
+          } else if (err.code === 2) {
+            addNotification('Failed Akses GPS', 'Sinyal GPS hilang atau fitur Location di HP Anda dimatikan.', 'error');
+          } else {
+            addNotification('Sistem GPS', 'Failed memuat satelit. Coba di tempat yang lebih terbuka atau restart GPS/HP.', 'warning');
+          }
+          setIsLocating(false);
+        },
+        options
+      );
+    };
+
+    getPos(geoOptions);
   };
 
   const compressImage = (file: File, maxWidth = 600, maxHeight = 600, quality = 0.3): Promise<string> => {
@@ -3715,7 +3755,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetFilters = () => {
-    setSearchQuery(''); setFilterLane(''); setStartDate(''); setEndDate('');
+    setSearchQuery(''); setFilterLane(''); setFilterArah(''); setFilterRanting(''); setStartDate(''); setEndDate('');
   };
 
   const sendNotificationToUser = async (targetEmail: string, title: string, message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
@@ -3829,11 +3869,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch (e) {
         console.warn('Invalid entry date:', entry.timestamp);
       }
+      
+      const entryRanting = getRantingClass(kmVal);
+      const matchesRanting = filterRanting === '' || entryRanting === filterRanting;
+      
       const matchesStartDate = startDate === '' || entryDate >= startDate;
       const matchesEndDate = endDate === '' || entryDate <= endDate;
-      return matchesSearch && matchesLane && matchesArah && matchesStartDate && matchesEndDate;
+      return matchesSearch && matchesLane && matchesArah && matchesRanting && matchesStartDate && matchesEndDate;
     });
-  }, [entries, searchQuery, filterLane, filterArah, startDate, endDate, showArchived]);
+  }, [entries, searchQuery, filterLane, filterArah, filterRanting, startDate, endDate, showArchived]);
 
   const totalTonase = useMemo(() => filteredEntries.reduce((sum, entry) => sum + (Number(entry.tonase) || 0), 0), [filteredEntries]);
   const totalVolume = useMemo(() => filteredEntries.reduce((sum, entry) => sum + (Number(entry.volume) || 0), 0), [filteredEntries]);
@@ -3924,7 +3968,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return sum + (e.qty || 0);
     }, 0);
 
-    const manualAddition = isPekanbaruDumai ? 401 : 0;
+    const manualAddition = 0;
     const realized = dbQtyForExcel + manualAddition;
     const remaining = Math.max(0, target - realized);
     const progressPerc = target > 0 ? ((realized / target) * 100).toFixed(1) : '0';
@@ -4351,8 +4395,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const trackLocation = () => {
       if ('geolocation' in navigator) {
 
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
+        const doUpdate = async (pos: any) => {
             try {
               const workerRef = doc(db, 'workers', user.uid);
               await updateDoc(workerRef, {
@@ -4363,9 +4406,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             } catch (e) {
               console.warn("Failed to update worker location", e);
             }
+        };
+        navigator.geolocation.getCurrentPosition(
+          doUpdate,
+          (err) => {
+             if (err.code === 3) {
+                 navigator.geolocation.getCurrentPosition(doUpdate, (e) => console.warn("Geolocation error fallback", e), { enableHighAccuracy: false, timeout: 15000 });
+             } else {
+                 console.warn("Geolocation error", err);
+             }
           },
-          (err) => console.warn("Geolocation error", err),
-          { enableHighAccuracy: true }
+          { enableHighAccuracy: true, timeout: 10000 }
         );
       }
     };
@@ -4748,7 +4799,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     panjang, setLength, lebar, setWidth, tebal, setThickness, location, setLocation, handleGetLocation, isLocating,
     photos0, setPhotos0, photos50, setPhotos50, photos100, setPhotos100, equipmentUsed, setEquipmentUsed, uploadingPhotos, isEntryArchived, setIsEntryArchived, removePhoto, handleFileUpload,
     uploadFileToStorage,
-    entries, handleAddEntry, resetEntryForm, handleDeleteEntry, isUploading, searchQuery, setSearchQuery, filterLane, setFilterLane, filterArah, setFilterArah,
+    entries, handleAddEntry, resetEntryForm, handleDeleteEntry, isUploading, searchQuery, setSearchQuery, filterLane, setFilterLane, filterArah, setFilterArah, filterRanting, setFilterRanting,
     startDate, setStartDate, endDate, setEndDate, showFilters, setShowFilters, resetFilters,
     viewMode, setViewMode, isSidebarOpen, setIsSidebarOpen, notifications, isNotificationOpen, setIsNotificationOpen,
     addNotification, markNotifAsRead, filteredEntries, totalTonase, totalVolume, lajurData, timeData, exportExcel, 

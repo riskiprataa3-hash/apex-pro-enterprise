@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, setLogLevel } from 'firebase/firestore';
+setLogLevel("silent");
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
@@ -8,7 +9,7 @@ const app = initializeApp(firebaseConfig);
 
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()}),
-  experimentalForceLongPolling: true
+  experimentalAutoDetectLongPolling: true
 }, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth(app);
