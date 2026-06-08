@@ -6,9 +6,12 @@ import { cn } from './ui/Base';
 import { useApp } from '../context/AppContext';
 
 export const DevMonitorTab = () => {
-  const { loginLogs, activeSessions, workers, projects, entries, handleDeleteEntriesByDate, isAdmin, activities } = useApp();
+  const { loginLogs, activeSessions, workers, projects, entries, handleDeleteEntriesByDate, isAdmin, activities, handleSyncAllRegisteredAccounts } = useApp();
   const [targetDeleteDate, setTargetDeleteDate] = useState('2026-05-16');
   const [activeTab, setActiveTab] = useState<'monitor' | 'audit'>('monitor');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncReport, setSyncReport] = useState<{ success: boolean; count: number; logMessages: string[] } | null>(null);
+  const [showLogs, setShowLogs] = useState(false);
 
   // Actual Stats Calculations
   const docCount = projects.length + entries.length + workers.length + loginLogs.length;
@@ -320,6 +323,89 @@ export const DevMonitorTab = () => {
                     </p>
                  </div>
               </div>
+
+               {/* Cluster Data & Accounts Sync Hub */}
+               <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
+                  <div className="flex items-center gap-3 mb-4">
+                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                        <Database className="w-5 h-5 animate-pulse text-indigo-500" />
+                     </div>
+                     <div>
+                        <p className="text-xs font-bold uppercase italic leading-none text-indigo-600 dark:text-indigo-400">Database & Accounts Sync Hub</p>
+                        <p className="text-[9px] text-muted-foreground uppercase mt-1 tracking-widest">Sinkronisasi & Audit Data Menyeluruh di Seluruh Akun Pegawai</p>
+                     </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-4">
+                     <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase leading-relaxed font-bold">
+                        Sistem sinkronisasi cluster ini memverifikasi integritas akun terdaftar, mengoreksi data profil kosong ke parameter standar, menyelaraskan koordinat pelacak sitemap GPS terakhir dengan presensi riil, dan membersihkan sesi sistem yang usang.
+                     </p>
+                     
+                     <div className="flex flex-wrap gap-3">
+                        <Button
+                          disabled={isSyncing}
+                          onClick={async () => {
+                             setIsSyncing(true);
+                             try {
+                                const report = await handleSyncAllRegisteredAccounts();
+                                setSyncReport(report);
+                                setShowLogs(true);
+                             } catch (e) {
+                                console.error(e);
+                             } finally {
+                                setIsSyncing(false);
+                             }
+                          }}
+                          className={cn(
+                            "h-12 px-6 rounded-xl flex items-center gap-2 italic font-bold uppercase text-[10px] transition-all",
+                            isSyncing ? "bg-indigo-300 dark:bg-indigo-700 pointer-events-none" : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
+                          )}
+                        >
+                           <Activity className={cn("w-4 h-4", isSyncing && "animate-spin")} />
+                           {isSyncing ? "Menyelaraskan..." : "Singkronkan Semua Data Akun Terdaftar"}
+                        </Button>
+                        
+                        {syncReport && (
+                           <Button
+                             variant="outline"
+                             onClick={() => setShowLogs(!showLogs)}
+                             className="h-12 px-6 rounded-xl text-[10px] font-bold uppercase tracking-widest"
+                           >
+                             {showLogs ? "Sembunyikan Log" : "Lihat Log Sinkronisasi"}
+                           </Button>
+                        )}
+                     </div>
+
+                     {/* Sync Status Badge Indicator */}
+                     {syncReport && (
+                        <div className={cn(
+                          "p-3 rounded-xl border flex items-center gap-2 text-[10px] font-bold uppercase",
+                          syncReport.success 
+                            ? "bg-emerald-500/5 border-emerald-400/20 text-emerald-600 dark:text-emerald-400" 
+                            : "bg-rose-500/5 border-rose-400/20 text-rose-600 dark:text-rose-400"
+                        )}>
+                           <ShieldAlert className="w-4 h-4" />
+                           {syncReport.success 
+                             ? `Sukses: ${syncReport.count} Dokumen Berhasil Diselaraskan.` 
+                             : "Gagal menyelaraskan cluster."
+                           }
+                        </div>
+                     )}
+
+                     {/* Logs Stream Panel */}
+                     {showLogs && syncReport?.logMessages && (
+                        <div className="rounded-xl bg-slate-950 p-4 border border-slate-800 text-[10px] font-mono text-emerald-400 overflow-y-auto max-h-60 space-y-1">
+                           <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
+                             <span className="text-[8px] font-bold uppercase text-slate-500 tracking-widest">Interactive Sync Live Report Stream</span>
+                             <span className="text-[8px] px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">LIVE</span>
+                           </div>
+                           {syncReport.logMessages.map((msg, i) => (
+                              <div key={i} className="leading-5">{msg}</div>
+                           ))}
+                        </div>
+                     )}
+                  </div>
+               </div>
            </div>
         </Card>
       )}

@@ -30,9 +30,25 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button, Card, Input, cn, Badge } from './ui/Base';
 import { FirebaseImage } from './FirebaseImage';
 import { SignaturePad } from './SignaturePad';
-// import { jsPDF } from 'jspdf';
-// import autoTable from 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+
+const applyAutoTable = (doc: any, options: any) => {
+  if (typeof autoTable === 'function') {
+    autoTable(doc, options);
+  } else if (typeof (doc as any).autoTable === 'function') {
+    (doc as any).autoTable(options);
+  } else {
+    const winAutoTable = (window as any).jspdfAutoTable || (window as any).autoTable;
+    if (typeof winAutoTable === 'function') {
+      winAutoTable(doc, options);
+    } else {
+      console.error('jspdf-autotable not loaded!');
+    }
+  }
+};
 
 export const AttendanceTab = () => {
   const { 
@@ -252,13 +268,6 @@ export const AttendanceTab = () => {
 
   const exportAttendancePDF = async () => {
     try {
-      const jspdfModule = await import('jspdf');
-      const jsPDF = (jspdfModule as any).jsPDF || (jspdfModule as any).default.jsPDF;
-      
-      const autoTableModule = await import('jspdf-autotable');
-      let autoTable = (autoTableModule as any).default || autoTableModule;
-      if (autoTable.default) autoTable = autoTable.default;
-
       addNotification("Info", "Menyiapkan ekspor PDF...", "info");
       
       const doc = new jsPDF();
@@ -338,8 +347,8 @@ export const AttendanceTab = () => {
         '' // FOTO placeholder
       ]);
 
-      autoTable(doc, {
-        startY: currentY,
+      applyAutoTable(doc, {
+          startY: currentY,
         head: [['NO', 'TANGGAL', 'WAKTU', 'TIPE', 'NAMA', 'PROYEK', 'CATATAN', 'FOTO']],
         body: tableRows,
         theme: 'striped',
@@ -431,15 +440,15 @@ export const AttendanceTab = () => {
           ]);
         });
 
-        autoTable(doc, {
-          startY: 35,
-          head: [['NAMA PERSONIL', 'ID KARYAWAN', 'KEHADIRAN', 'RATE / HARI', 'TOTAL KASBON', 'TOTAL GAJI']],
-          body: summaryRows,
-          theme: 'grid',
-          headStyles: { fillColor: [15, 118, 110], fontSize: 9, halign: 'center' },
-          bodyStyles: { fontSize: 8, halign: 'center' },
-          columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
-        });
+        applyAutoTable(doc, {
+            startY: 35,
+            head: [['NAMA PERSONIL', 'ID KARYAWAN', 'KEHADIRAN', 'RATE / HARI', 'TOTAL KASBON', 'TOTAL GAJI']],
+            body: summaryRows,
+            theme: 'grid',
+            headStyles: { fillColor: [15, 118, 110], fontSize: 9, halign: 'center' },
+            bodyStyles: { fontSize: 8, halign: 'center' },
+            columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
+          });
 
         // --- SIGNATURE SECTION ---
         const finalY = (doc as any).lastAutoTable.finalY + 30;
@@ -534,10 +543,6 @@ export const AttendanceTab = () => {
 
   const exportAttendanceExcel = async () => {
     try {
-      const ExcelJSModule = await import('exceljs');
-      let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-      if (ExcelJS.default) ExcelJS = ExcelJS.default;
-      
       addNotification("Info", "Menyiapkan ekspor Excel...", "info");
       
       const workbook = new ExcelJS.Workbook();

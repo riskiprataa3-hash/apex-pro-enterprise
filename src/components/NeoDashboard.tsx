@@ -15,7 +15,7 @@ export const NeoDashboard = () => {
   const totalCompleted = realizedAsli;
 
   // Target
-  const target = inletProject?.targetQty || 1839; // Diisi ulang jika berbeda
+  const target = inletProject?.targetQty || 1838; // Diisi ulang jika berbeda
   const progressPercent = Math.min(100, Math.round((totalCompleted / target) * 100)) || 0;
   
   // Ambil nama user

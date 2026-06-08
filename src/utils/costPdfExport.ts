@@ -1,5 +1,20 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
+
+const applyAutoTable = (doc: any, options: any) => {
+  if (typeof autoTable === 'function') {
+    autoTable(doc, options);
+  } else if (typeof (doc as any).autoTable === 'function') {
+    (doc as any).autoTable(options);
+  } else {
+    const winAutoTable = (window as any).jspdfAutoTable || (window as any).autoTable;
+    if (typeof winAutoTable === 'function') {
+      winAutoTable(doc, options);
+    } else {
+      console.error('jspdf-autotable not loaded!');
+    }
+  }
+};
 
 export const generateCostPdf = () => {
   const doc = new jsPDF();
@@ -39,7 +54,7 @@ export const generateCostPdf = () => {
   doc.setTextColor(80, 80, 80);
   doc.text('Jika semua data 24.8 GB ditarik sekaligus oleh 5 perangkat setiap hari (tanpa batasan sistem):', 14, 101);
   
-  (doc as any).autoTable({
+  applyAutoTable(doc, {
     startY: 105,
     head: [['Komponen', 'Dengan Sistem Limit (Aman)', 'TANPA LIMIT (Bahaya)']],
     body: [

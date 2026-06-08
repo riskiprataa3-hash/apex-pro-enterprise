@@ -58,6 +58,7 @@ import { useSwipeable } from 'react-swipeable';
 import { exportToPDF, exportCombinedPDF } from '../utils/pdfExport';
 import { exportDailyExcel, exportCombinedDailyExcel } from '../utils/excelExport';
 import { FirebaseImage } from './FirebaseImage';
+import { getRantingClass } from '../utils/ranting';
 
 const ProjectDetailPage: React.FC = () => {
   const { 
@@ -108,6 +109,7 @@ const ProjectDetailPage: React.FC = () => {
     { id: 'input', label: 'Input' },
     { id: 'data', label: 'Data' },
     { id: 'report', label: 'Daily' },
+    { id: 'ranting', label: 'Ranting' },
     { id: 'analytics', label: 'Analytics' },
   ];
   const tabsList = isAudit ? rawTabsList.filter(t => t.id !== 'input') : rawTabsList;
@@ -137,6 +139,12 @@ const ProjectDetailPage: React.FC = () => {
   const [signatureName, setSignatureName] = useState("");
   const [signatureRole, setSignatureRole] = useState("");
   const [visibleCount, setVisibleCount] = useState(25);
+  
+  // State for Ranting detailed KM inspector
+  const [viewingRantingId, setViewingRantingId] = useState<string | null>(null);
+  const [viewingRantingTitle, setViewingRantingTitle] = useState<string>("");
+  const [rantingSearch, setRantingSearch] = useState<string>("");
+  const [rantingStatusFilter, setRantingStatusFilter] = useState<'all' | 'completed' | 'in_progress'>('all');
 
   const handleGenerateSummary = async () => {
     setIsGeneratingAI(true);
@@ -293,6 +301,37 @@ const ProjectDetailPage: React.FC = () => {
   const dynamicsOffset = 0;
   const finalRealizationStr = (baseRealization + dynamicsOffset).toFixed(0);
 
+  // Get all entries for the selected Ranting details view
+  const activeRantingEntries = useMemo(() => {
+    if (!viewingRantingId) return [];
+    return (entries || []).filter(e => {
+      if (!e) return false;
+      if (e.isArchived && !showArchived) return false;
+      return getRantingClass(e.km) === viewingRantingId;
+    });
+  }, [entries, viewingRantingId, showArchived]);
+
+  // Search filter inside Ranting details list
+  const filteredRantingEntries = useMemo(() => {
+    return activeRantingEntries.filter(e => {
+      const searchLower = (rantingSearch || "").toLowerCase();
+      const kmMatch = 
+        (e.km || "").toLowerCase().includes(searchLower) || 
+        (e.lajur || "").toLowerCase().includes(searchLower) || 
+        (e.description || "").toLowerCase().includes(searchLower);
+      
+      if (!kmMatch) return false;
+      
+      if (rantingStatusFilter === 'completed') {
+        return e.status === 'completed';
+      }
+      if (rantingStatusFilter === 'in_progress') {
+        return e.status !== 'completed';
+      }
+      return true;
+    });
+  }, [activeRantingEntries, rantingSearch, rantingStatusFilter]);
+
   return (
     <>
       {selectedEntryPhotos && (
@@ -431,11 +470,12 @@ const ProjectDetailPage: React.FC = () => {
           </div>
           
           {/* Tab Controller UI */}
-              <div className="flex bg-card p-1.5 rounded-[2rem] border border-border/50 mb-8 max-w-lg mx-auto shadow-sm">
+              <div className="flex bg-card p-1.5 rounded-[2rem] border border-border/50 mb-8 max-w-xl mx-auto shadow-sm">
             {[
               { id: 'input', label: 'Input', icon: Calculator },
               { id: 'data', label: 'Data', icon: Database },
               { id: 'report', label: 'Daily', icon: Calendar },
+              { id: 'ranting', label: 'Ranting', icon: FileSpreadsheet },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 },
             ].filter(t => isAudit ? t.id !== 'input' : true).map((t) => (
               <button
@@ -1547,6 +1587,238 @@ const ProjectDetailPage: React.FC = () => {
                 </div>
               </motion.div>
             )}
+
+            {activeTab === 'ranting' && (
+              <motion.div 
+                key="ranting" 
+                initial={{ opacity: 0, x: 10 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                transition={{ type: "spring", stiffness: 800, damping: 40, ease: [0.25, 1, 0.5, 1] }} 
+                className="space-y-6 pb-20 will-change-transform"
+              >
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-bold italic uppercase tracking-tighter">Download per Ranting</h2>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                      Unduh laporan PDF atau Excel khusus per wilayah Ranting kerja
+                    </p>
+                  </div>
+                </div>
+
+                {/* Date & Signature Customizers inside the tab */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-card/40 p-5 rounded-3xl border border-border/50">
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 font-black">
+                      1. Filter Rentang Tanggal
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                          Tanggal Mulai
+                        </label>
+                        <Input 
+                          type="date" 
+                          value={startDate} 
+                          onChange={(e) => setStartDate(e.target.value)} 
+                          className="rounded-xl w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                          Tanggal Selesai
+                        </label>
+                        <Input 
+                          type="date" 
+                          value={endDate} 
+                          onChange={(e) => setEndDate(e.target.value)} 
+                          className="rounded-xl w-full"
+                        />
+                      </div>
+                    </div>
+                    {(startDate || endDate) && (
+                      <button 
+                        onClick={() => { setStartDate(''); setEndDate(''); }}
+                        className="text-[10px] font-bold text-rose-500 uppercase tracking-widest hover:underline block mt-1"
+                      >
+                        [Clear Filter Tanggal]
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 font-black">
+                      2. Pengaturan Tanda Tangan
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                          Nama Penandatangan
+                        </label>
+                        <Input 
+                          placeholder="Contoh: Budi Santoso" 
+                          value={signatureName} 
+                          onChange={(e) => setSignatureName(e.target.value)} 
+                          className="rounded-xl w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                          Jabatan
+                        </label>
+                        <Input 
+                          placeholder="Contoh: Site Manager" 
+                          value={signatureRole} 
+                          onChange={(e) => setSignatureRole(e.target.value)} 
+                          className="rounded-xl w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ranting Cards Display */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {[
+                    { 
+                      id: 'Ranting 1', 
+                      title: 'Ranting 1', 
+                      desc: 'Mencakup wilayah Kandis Selatan, STA KM 08+000 sd KM 09+300 AOS, serta KM 12+200 & 08+000 BOS.' 
+                    },
+                    { 
+                      id: 'Ranting 2', 
+                      title: 'Ranting 2', 
+                      desc: 'Mencakup STA KM 74+800, 60+200 sd 61+420 BOS, KM 44+000 sd 55+630.' 
+                    },
+                    { 
+                      id: 'Ranting 3', 
+                      title: 'Ranting 3 (Dumai)', 
+                      desc: 'Mencakup area Dumai dan sekitarnya (sektor pengerjaan sisa di luar Ranting 1 & Ranting 2).' 
+                    }
+                  ].map((rantingConfig) => {
+                    // Filter entries for this specific Ranting
+                    const rantingEntries = (entries || []).filter(e => {
+                      if (!e) return false;
+                      if (e.isArchived && !showArchived) return false;
+                      
+                      // Check matching Ranting group
+                      const entryRanting = getRantingClass(e.km);
+                      if (entryRanting !== rantingConfig.id) return false;
+                      
+                      // Check custom dates
+                      let entryDate = '';
+                      try {
+                        if (e.timestamp) {
+                          const d = new Date(e.timestamp);
+                          if (!isNaN(d.getTime())) {
+                            entryDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                          }
+                        }
+                      } catch (err) {}
+                      
+                      const matchesStartDate = startDate === '' || entryDate >= startDate;
+                      const matchesEndDate = endDate === '' || entryDate <= endDate;
+                      return matchesStartDate && matchesEndDate;
+                    });
+
+                    const totalItems = rantingEntries.length;
+                    const completedCount = rantingEntries.filter(e => e.status === 'completed').length;
+                    const realizedTotal = rantingEntries.reduce((sum, e) => {
+                      if (currentProject?.type === 'asphalt') return sum + (Number(e.tonase) || 0);
+                      return sum + (Number(e.qty) || 0);
+                    }, 0);
+                    const unit = currentProject?.type === 'asphalt' ? 't' : currentProject?.type === 'painting' ? 'm²' : 'u';
+
+                    return (
+                      <Card 
+                        key={rantingConfig.id} 
+                        className="p-5 relative overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-300 border-t-4 border-t-indigo-500 bg-card rounded-[2rem]"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-black italic tracking-tight text-foreground uppercase">
+                              {rantingConfig.title}
+                            </h3>
+                            <div className="bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-xl">
+                              <span className="text-[10px] font-black italic text-indigo-600 dark:text-indigo-400">
+                                {totalItems} TITIK
+                              </span>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-muted-foreground leading-relaxed h-12 overflow-hidden text-ellipsis">
+                            {rantingConfig.desc}
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-3 py-2 border-y border-dashed border-border/60">
+                            <div>
+                              <span className="text-[9px] font-bold text-muted-foreground block uppercase">REALISASI</span>
+                              <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">
+                                {realizedTotal.toLocaleString('id-ID')} {unit}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-muted-foreground block uppercase">STATUS</span>
+                              <span className="text-sm font-black text-emerald-600">
+                                {completedCount} / {totalItems} OK
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 space-y-2.5">
+                          <Button
+                            onClick={() => {
+                              if (rantingEntries.length === 0) {
+                                alert(`Tidak ada data pengerjaan untuk ${rantingConfig.title} pada rentang tanggal terpilih.`);
+                                return;
+                              }
+                              const sign = signatureName ? { name: signatureName, role: signatureRole } : undefined;
+                              exportToPDF(currentProject, rantingEntries, sign, entries);
+                            }}
+                            variant="primary"
+                            className="w-full rounded-2xl h-12 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group bg-rose-600 hover:bg-rose-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          >
+                            <FileText className="w-4 h-4 text-white" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white">Unduh PDF Ranting</span>
+                          </Button>
+
+                          <Button
+                            onClick={() => {
+                              if (rantingEntries.length === 0) {
+                                alert(`Tidak ada data pengerjaan untuk ${rantingConfig.title} pada rentang tanggal terpilih.`);
+                                return;
+                              }
+                              const sign = signatureName ? { name: signatureName, role: signatureRole } : undefined;
+                              exportExcel(sign, rantingEntries);
+                            }}
+                            variant="outline"
+                            className="w-full rounded-2xl h-12 shadow-sm border-border flex items-center justify-center gap-2 group hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          >
+                            <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Unduh Excel Ranting</span>
+                          </Button>
+
+                          <Button
+                            onClick={() => {
+                              setViewingRantingId(rantingConfig.id);
+                              setViewingRantingTitle(rantingConfig.title);
+                              setRantingSearch("");
+                              setRantingStatusFilter("all");
+                            }}
+                            variant="outline"
+                            className="w-full rounded-2xl h-12 shadow-sm border-border flex items-center justify-center gap-2 group hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          >
+                            <Eye className="w-4 h-4 text-indigo-500" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500">Lihat Daftar KM</span>
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </main>
@@ -1565,6 +1837,182 @@ const ProjectDetailPage: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Ranting KM Inspector Widescreen Drawer Overlay */}
+      <AnimatePresence>
+        {viewingRantingId !== null && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setViewingRantingId(null)} 
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm shadow-inner" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative bg-card w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-border/50 flex flex-col max-h-[85vh] z-50 bg-background/95 backdrop-blur-md"
+            >
+              <button 
+                onClick={() => setViewingRantingId(null)} 
+                className="absolute top-6 right-6 text-foreground/50 hover:text-foreground hover:bg-muted p-2 rounded-full transition-all z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="p-6 md:p-8 space-y-6 flex flex-col h-full overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5 border-border/40">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black tracking-widest text-indigo-600 dark:text-indigo-400 block uppercase">
+                      Informasi Penataan Wilayah Terfokus
+                    </span>
+                    <h3 className="text-2xl font-black text-foreground italic uppercase flex items-center gap-2">
+                      <Navigation className="w-5 h-5 text-indigo-500" />
+                      {viewingRantingTitle}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2 self-start sm:self-center">
+                    <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-extrabold px-3.5 py-1.5 rounded-xl border border-indigo-500/10">
+                      {filteredRantingEntries.length} TITIK COCOK
+                    </span>
+                  </div>
+                </div>
+
+                {/* Grid Summary */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-indigo-50/20 dark:bg-indigo-950/10 p-4 rounded-3xl border border-indigo-500/5">
+                  <div className="bg-card/50 p-3 rounded-2xl border border-border/40 text-center">
+                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">TOTAL TITIK</span>
+                    <span className="text-xl font-black text-foreground font-mono">
+                      {activeRantingEntries.length}
+                    </span>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-2xl border border-border/40 text-center">
+                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">REALISASI</span>
+                    <span className="text-xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                      {activeRantingEntries.reduce((sum, e) => {
+                        if (currentProject?.type === 'asphalt') return sum + (Number(e.tonase) || 0);
+                        return sum + (Number(e.qty) || 0);
+                      }, 0).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-2xl border border-border/40 text-center">
+                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">SELESAI (OK)</span>
+                    <span className="text-xl font-black text-emerald-600 font-mono">
+                      {activeRantingEntries.filter(e => e.status === 'completed').length}
+                    </span>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-2xl border border-border/40 text-center">
+                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">PROGRES (WIP)</span>
+                    <span className="text-xl font-black text-amber-500 font-mono">
+                      {activeRantingEntries.filter(e => e.status !== 'completed').length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Filter and Search controls */}
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Cari KM, lajur, atau catatan..."
+                      value={rantingSearch}
+                      onChange={(e) => setRantingSearch(e.target.value)}
+                      className="pl-10 rounded-2xl w-full"
+                    />
+                  </div>
+                  <div className="flex bg-muted/30 p-1.5 rounded-2xl self-stretch border border-border/40">
+                    {(['all', 'completed', 'in_progress'] as const).map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => setRantingStatusFilter(opt)}
+                        className={cn(
+                          "px-4 py-1.5 text-[10px] font-black uppercase rounded-xl transition-all whitespace-nowrap",
+                          rantingStatusFilter === opt
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "text-muted-foreground hover:bg-muted"
+                        )}
+                      >
+                        {opt === 'all' ? 'Semua' : opt === 'completed' ? 'Selesai (OK)' : 'Belum Selesai'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Table Container */}
+                <div className="flex-1 overflow-y-auto border border-border/40 rounded-3xl min-h-[250px] bg-muted/5">
+                  {filteredRantingEntries.length === 0 ? (
+                    <div className="p-12 text-center text-muted-foreground text-xs italic">
+                      Tidak ada titik KM yang cocok dengan kriteria pencarian Anda.
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-border/40 bg-muted/45 text-[10px] font-black text-muted-foreground uppercase tracking-wider sticky top-0 bg-card z-10">
+                          <th className="py-4 px-4 text-center w-16">No</th>
+                          <th className="py-4 px-4">KM / STA</th>
+                          <th className="py-4 px-4">Lajur / Arah</th>
+                          <th className="py-4 px-4 text-right">Volume</th>
+                          <th className="py-4 px-4">Status</th>
+                          <th className="py-4 px-4">Catatan / Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/20 text-xs">
+                        {filteredRantingEntries.map((e, idx) => {
+                          const isComp = e.status === 'completed';
+                          const q = currentProject?.type === 'asphalt' ? (Number(e.tonase) || Number(e.qty) || 0) : (Number(e.qty) || 0);
+                          const unit = currentProject?.type === 'asphalt' ? 't' : currentProject?.type === 'painting' ? 'm²' : 'u';
+                          return (
+                            <tr key={e.id || idx} className="hover:bg-muted/15 transition-all font-medium">
+                              <td className="py-3.5 px-4 text-center text-muted-foreground font-mono">{idx + 1}</td>
+                              <td className="py-3.5 px-4 font-black text-foreground">{e.km}</td>
+                              <td className="py-3.5 px-4">
+                                <span className={cn(
+                                  "px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider",
+                                  (e.lajur || "").toUpperCase().includes("B/OS") || (e.lajur || "").toUpperCase().includes("BOS")
+                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                                    : "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300"
+                                )}>
+                                  {e.lajur || 'A/OS'}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4 text-right font-mono text-foreground font-black">
+                                {q.toLocaleString('id-ID')} <span className="text-[10px] text-muted-foreground font-normal">{unit}</span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className={cn(
+                                  "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white",
+                                  isComp ? "bg-emerald-500" : "bg-amber-500"
+                                )}>
+                                  {isComp ? 'Selesai' : 'WIP'}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4 text-muted-foreground text-[11px] max-w-[200px] truncate" title={e.description || ''}>
+                                {e.description || '-'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-border/40">
+                  <Button
+                    variant="outline"
+                    onClick={() => setViewingRantingId(null)}
+                    className="w-full h-12 rounded-2xl font-black text-[10px] uppercase tracking-wider"
+                  >
+                    Kembali Ke Daftar Ranting
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
     </>
   );

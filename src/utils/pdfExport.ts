@@ -1,9 +1,24 @@
-// import { jsPDF } from 'jspdf';
-// import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { auth, storage } from '../firebase';
 import { ref, getDownloadURL, getBytes } from 'firebase/storage';
 import { Project } from '../context/AppContext';
+
+const applyAutoTable = (doc: any, options: any) => {
+  if (typeof autoTable === 'function') {
+    autoTable(doc, options);
+  } else if (typeof (doc as any).autoTable === 'function') {
+    (doc as any).autoTable(options);
+  } else {
+    const winAutoTable = (window as any).jspdfAutoTable || (window as any).autoTable;
+    if (typeof winAutoTable === 'function') {
+      winAutoTable(doc, options);
+    } else {
+      console.error('jspdf-autotable not loaded!');
+    }
+  }
+};
 
 // Global cache for PDF images
 const pdfImageCache: Record<string, string> = {};
@@ -170,13 +185,6 @@ export const removeOverlay = (successMsg?: string) => {
 };
 
 export const exportPDF = async (currentProject: any, dataToExport: any[], signature?: { name: string, role: string }, allEntries?: any[], onProgress?: (msg: string, val: number) => void) => {
-  const jspdfModule = await import('jspdf');
-  const jsPDF = (jspdfModule as any).jsPDF || (jspdfModule as any).default.jsPDF;
-  
-  const autoTableModule = await import('jspdf-autotable');
-  let autoTable = (autoTableModule as any).default || autoTableModule;
-  if (autoTable.default) autoTable = autoTable.default;
-
   const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4', compress: true });
   const timestamp = new Date().getTime();
   
@@ -215,8 +223,7 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
   const urlArray = Array.from(urlsToLoad);
   
   if (onProgress) onProgress(`Memulai unduhan foto (0/${urlArray.length})...`, 5);
-  // Peningkatan concurrency agar lebih cepat tapi stabil (bukan 15 yang menyebabkan browser antre)
-  const CONCURRENCY = 15;
+  const CONCURRENCY = 6;
   let downloadedCount = 0;
   let activeIndex = 0;
   
@@ -395,8 +402,8 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
     return [`No. ${index + 1}`, col1, col2, '', statusText];
   });
 
-  autoTable(doc, {
-    startY: 215,
+  applyAutoTable(doc, {
+        startY: 215,
     head: head,
     body: bodyData,
     theme: 'grid',
@@ -620,17 +627,20 @@ export const exportPDF = async (currentProject: any, dataToExport: any[], signat
 
 export const exportCombinedPDF = async (currentProject: any, groups: { date: string, entries: any[] }[], signature?: { name: string, role: string }) => {
   try {
+    if (!groups || groups.length === 0) {
+      alert('Tidak ada data harian untuk diekspor.');
+      return;
+    }
+    const totalEntries = groups.reduce((acc, curr) => acc + curr.entries.length, 0);
+    if (totalEntries > 100) {
+      const confirmProceed = window.confirm(`Peringatan: Anda akan mencetak Total ${totalEntries} data. Memori ponsel biasanya tidak kuat dan bisa error.\n\nDisarankan filter berdasarkan Ranting / Tanggal lebih sedikit terlebih dahulu.\n\nTetap Lanjutkan Export PDF Gabungan?`);
+      if (!confirmProceed) return;
+    }
+    
     createOverlay();
 
     setTimeout(async () => {
       try {
-        const jspdfModule = await import('jspdf');
-        const jsPDF = (jspdfModule as any).jsPDF || (jspdfModule as any).default.jsPDF;
-        
-        const autoTableModule = await import('jspdf-autotable');
-        let autoTable = (autoTableModule as any).default || autoTableModule;
-        if (autoTable.default) autoTable = autoTable.default;
-
         const doc = new jsPDF({ orientation: 'l', unit: 'pt', format: 'a4', compress: true });
         const timestamp = new Date().getTime();
 
@@ -666,8 +676,7 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
         const urlArray = Array.from(urlsToLoad);
         
         updateProgress(`Memulai unduhan foto (0/${urlArray.length})...`, 5);
-        // Maksimal concurrency untuk ekspor gabungan dikembalikan ke 6
-        const CONCURRENCY = 15;
+        const CONCURRENCY = 6;
         let downloadedCount = 0;
         let activeIndex = 0;
         
@@ -748,8 +757,8 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
             return [String(index + 1), col1, col2, ''];
           });
 
-          autoTable(doc, {
-            startY: 135,
+          applyAutoTable(doc, {
+              startY: 135,
             head: head,
             body: bodyData,
             theme: 'grid',
@@ -849,14 +858,16 @@ export const exportCombinedPDF = async (currentProject: any, groups: { date: str
 
         doc.save(`Summary_Report_Gabungan_${currentProject?.name}_${timestamp}.pdf`);
         removeOverlay('PDF Gabungan Success');
-      } catch (err) {
+      } catch (err: any) {
         removeOverlay();
         console.error(err);
+        alert(`Failed mendownload PDF Gabungan: ${err?.message || String(err)}\n\nTips: Jika memori penuh, filter rentang tanggal atau Ranting sebelum mendownload.`);
       }
     }, 500);
-  } catch (err) {
+  } catch (err: any) {
     removeOverlay();
     console.error(err);
+    alert(`Failed mendownload PDF Gabungan: ${err?.message || String(err)}`);
   }
 };
 
@@ -869,8 +880,13 @@ export const exportToPDF = (project: any, data: any[], signature?: { name: strin
     }
     if (!data || data.length === 0) {
       alert('Warning: Tidak ada data pengerjaan untuk diekspor.');
+      return;
     }
     
+    if (data.length > 100) {
+      const confirmProceed = window.confirm(`Peringatan: Anda mengekspor ${data.length} data. Jika memori HP tidak kuat, pembuatan PDF akan gagal/error.\n\nSilakan filter Tanggal atau Ranting jika terjadi kegagalan.\n\nTetap Lanjutkan Ekspor?`);
+      if (!confirmProceed) return;
+    }
     createOverlay();
 
     // Small delay to allow overlay to render
@@ -880,10 +896,10 @@ export const exportToPDF = (project: any, data: any[], signature?: { name: strin
            updateProgress(msg, val);
         });
         removeOverlay('PDF Success Diunduh');
-      } catch (innerErr) {
+      } catch (innerErr: any) {
         removeOverlay();
         console.error(innerErr);
-        alert('Failed mendownload PDF.');
+        alert(`Failed mendownload PDF: ${innerErr?.message || String(innerErr)}\n\nTips: Filter data (tanggal/ranting) menjadi lebih sedikit jika memori hp tidak kuat.`);
       }
     }, 500);
     

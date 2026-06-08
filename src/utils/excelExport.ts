@@ -3,6 +3,7 @@
  * Menggunakan library ExcelJS untuk manipulasi workbook dan File-Saver untuk pengunduhan.
  */
 import { saveAs } from 'file-saver';
+import ExcelJS from 'exceljs';
 import { createOverlay, updateProgress, removeOverlay } from './pdfExport';
 import { storage } from '../firebase';
 import { ref, getBytes } from 'firebase/storage';
@@ -167,10 +168,6 @@ export const exportDailyExcel = async (currentProject: any, dateDisplay: string,
   updateProgress('Menghasilkan Excel...', 10);
 
   try {
-    const ExcelJSModule = await import('exceljs');
-    let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-    if (ExcelJS.default) ExcelJS = ExcelJS.default;
-    
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(`Report ${dateDisplay}`);
 
@@ -399,10 +396,6 @@ export const exportCombinedDailyExcel = async (currentProject: any, groups: { da
   updateProgress('Menyiapkan Excel Gabungan...', 10);
 
   try {
-    const ExcelJSModule = await import('exceljs');
-    let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-    if (ExcelJS.default) ExcelJS = ExcelJS.default;
-    
     const workbook = new ExcelJS.Workbook();
     const timestamp = new Date().getTime();
 

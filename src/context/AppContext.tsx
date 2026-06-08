@@ -9,9 +9,27 @@ import { auth, db, storage } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { notifyTaskUpdateToExecutant, notifyAdminsForNewIncident, notifyAdminsForEquipmentRequest } from '../services/notificationService';
 import { saveAs } from 'file-saver';
+import ExcelJS from 'exceljs';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
 import { fetchImageAsBase64 } from '../utils/excelExport';
 import { getRantingClass } from '../utils/ranting';
+
+const applyAutoTable = (doc: any, options: any) => {
+  if (typeof autoTable === 'function') {
+    autoTable(doc, options);
+  } else if (typeof (doc as any).autoTable === 'function') {
+    (doc as any).autoTable(options);
+  } else {
+    const winAutoTable = (window as any).jspdfAutoTable || (window as any).autoTable;
+    if (typeof winAutoTable === 'function') {
+      winAutoTable(doc, options);
+    } else {
+      console.error('jspdf-autotable not loaded!');
+    }
+  }
+};
 
 export enum OperationType {
   CREATE = 'create',
@@ -514,7 +532,7 @@ interface AppContextType {
   totalVolume: number;
   lajurData: { name: string; value: number }[];
   timeData: { date: string; tonase: number; volume: number; units: number }[];
-  exportExcel: (signature?: { name: string, role: string }) => Promise<void>;
+  exportExcel: (signature?: { name: string, role: string }, customEntries?: any[]) => Promise<void>;
   exportAllProjectsExcel: () => Promise<void>;
   exportInventoryToExcel: () => Promise<void>;
   selectedEntryPhotos: AspalEntry | null;
@@ -634,6 +652,7 @@ interface AppContextType {
   // Settings Access Code
   adminAccessCode: string;
   updateAdminAccessCode: (code: string) => Promise<void>;
+  handleSyncAllRegisteredAccounts: () => Promise<{ success: boolean; count: number; logMessages: string[] }>;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -2261,10 +2280,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
-    const { jsPDF } = await import('jspdf');
-    const autoTableModule = await import('jspdf-autotable');
-    let autoTable = (autoTableModule as any).default || autoTableModule;
-    if (autoTable.default) autoTable = autoTable.default;
+
     
     const doc = new jsPDF();
     const now = new Date();
@@ -2297,13 +2313,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       e.tonase ? `${e.tonase} t` : e.qty ? `${e.qty} u` : '-'
     ]);
 
-    autoTable(doc, {
-      startY: 75,
-      head: [['NO', 'LOKASI KM', 'STATUS', 'KETERANGAN', 'VOLUME/TONASE']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [15, 23, 42] }
-    });
+    applyAutoTable(doc, {
+        startY: 75,
+        head: [['NO', 'LOKASI KM', 'STATUS', 'KETERANGAN', 'VOLUME/TONASE']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42] }
+      });
 
     // Manpower Section
     const finalY = (doc as any).lastAutoTable.finalY + 10;
@@ -2353,14 +2369,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const projectsData: Project[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any } as Project));
       setProjectsMetadata(projectsData);
       
-      // Auto-update PEKANBARU-DUMAI targetQty to 1839 in database
-      snapshot.docs.forEach((document) => {
-        const data = document.data();
-        if (data.name && data.name.toUpperCase().includes('PEKANBARU-DUMAI') && data.targetQty !== 1839) {
-          updateDoc(doc(db, 'projects', document.id), { targetQty: 1839 })
-            .catch((e) => console.warn('Failed to auto-update targetQty in Firestore:', e.message));
-        }
-      });
+
     }, (err) => {
       console.warn('Projects sync failed:', err.message);
     });
@@ -3356,8 +3365,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const d = new Date(fallbackTimestamp);
         const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' });
         const dateStr = formatter.format(d);
+        let upperKm = finalKm.toUpperCase();
         let stripped = finalKm.replace(/\s*[AB](\/OS)?$/i, '').trim();
-        finalKm = dateStr === '2026-05-18' ? stripped + ' B/OS' : stripped + ' A/OS';
+        if (upperKm.includes('B/OS') || upperKm.includes('BOS') || upperKm.includes('B-OS') || /\bB\b/.test(upperKm) || upperKm.endsWith(' B') || upperKm.endsWith('B/OS') || upperKm.endsWith('BOS')) {
+          finalKm = stripped + ' B/OS';
+        } else if (upperKm.includes('A/OS') || upperKm.includes('AOS') || upperKm.includes('A-OS') || /\bA\b/.test(upperKm) || upperKm.endsWith(' A') || upperKm.endsWith('A/OS') || upperKm.endsWith('AOS')) {
+          finalKm = stripped + ' A/OS';
+        } else {
+          finalKm = dateStr === '2026-05-18' ? stripped + ' B/OS' : stripped + ' A/OS';
+        }
     }
 
 
@@ -3394,7 +3410,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const tonase = volume * d;
 
       const entryData: any = {
-        km,
+        km: finalKm,
         ownerId: user?.uid,
         status: entryStatus,
         description: entryDesc,
@@ -3492,8 +3508,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const d = new Date(entryData.timestamp || Date.now());
         const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' });
         const dateStr = formatter.format(d);
+        let upperKm = finalKmManual.toUpperCase();
         let stripped = finalKmManual.replace(/\s*[AB](\/OS)?$/i, '').trim();
-        finalKmManual = dateStr === '2026-05-18' ? stripped + ' B/OS' : stripped + ' A/OS';
+        if (upperKm.includes('B/OS') || upperKm.includes('BOS') || upperKm.includes('B-OS') || /\bB\b/.test(upperKm) || upperKm.endsWith(' B') || upperKm.endsWith('B/OS') || upperKm.endsWith('BOS')) {
+          finalKmManual = stripped + ' B/OS';
+        } else if (upperKm.includes('A/OS') || upperKm.includes('AOS') || upperKm.includes('A-OS') || /\bA\b/.test(upperKm) || upperKm.endsWith(' A') || upperKm.endsWith('A/OS') || upperKm.endsWith('AOS')) {
+          finalKmManual = stripped + ' A/OS';
+        } else {
+          finalKmManual = dateStr === '2026-05-18' ? stripped + ' B/OS' : stripped + ' A/OS';
+        }
         entryData.km = finalKmManual;
     }
 
@@ -3855,9 +3878,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const matchesSearch = kmVal.toLowerCase().includes(searchQuery.toLowerCase()) || lajurVal.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesLane = filterLane === '' || lajurVal === filterLane;
       
-      let entryArah = '';
-      if (kmVal.toUpperCase().includes('A/OS')) entryArah = 'A/OS';
-      else if (kmVal.toUpperCase().includes('B/OS')) entryArah = 'B/OS';
+      let entryArah = 'A/OS';
+      const upperKm = kmVal.toUpperCase();
+      if (upperKm.includes('B/OS') || upperKm.includes('BOS') || upperKm.includes('B-OS') || /\bB\b/.test(upperKm) || upperKm.endsWith(' B') || upperKm.endsWith('B/OS') || upperKm.endsWith('BOS')) {
+        entryArah = 'B/OS';
+      }
       const matchesArah = filterArah === '' || entryArah === filterArah;
 
       let entryDate = '';
@@ -3917,8 +3942,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const exportExcel = async (signature?: { name: string, role: string }) => {
-    const dataToExport = filteredEntries;
+  const exportExcel = async (signature?: { name: string, role: string }, customEntries?: any[]) => {
+    const dataToExport = customEntries || filteredEntries;
     if (dataToExport.length === 0) {
       addNotification('Sistem Report', 'Tidak ada data spesifik untuk dieksport.', 'warning');
       return;
@@ -3929,9 +3954,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const dateFormatted = today.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const fullDateStr = today.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
-    const ExcelJSModule = await import('exceljs');
-    let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-    if (ExcelJS.default) ExcelJS = ExcelJS.default;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('DATA_OPERASIONAL');
 
@@ -4305,10 +4327,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       // Simulate progress stages to feel like background processing
       await new Promise(r => setTimeout(r, 600));
-      
-      const ExcelJSModule = await import('exceljs');
-      let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-      if (ExcelJS.default) ExcelJS = ExcelJS.default;
       
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('SUMMARY_SELURUH_PROYEK');
@@ -4722,9 +4740,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     
     addNotification('Sistem Report', 'Sedang menyiapkan Excel, mohon tunggu...', 'info');
-    const ExcelJSModule = await import('exceljs');
-    let ExcelJS = (ExcelJSModule as any).default || ExcelJSModule;
-    if (ExcelJS.default) ExcelJS = ExcelJS.default;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Inventory Stock');
 
@@ -4773,9 +4788,188 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const { saveAs } = await import('file-saver');
     saveAs(new Blob([buffer]), `Inventory_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
     addNotification('Inventory Export', 'Data inventori telah berhasil diunduh.', 'success');
+  };
+
+  const handleSyncAllRegisteredAccounts = async (): Promise<{ success: boolean; count: number; logMessages: string[] }> => {
+    const logs: string[] = [];
+    logs.push(`[${new Date().toLocaleTimeString()}] Memulai sinkronisasi cluster data terpadu...`);
+    
+    if (!isOnline) {
+      logs.push(`[ERROR] Sinkronisasi dibatalkan: Koneksi internet offline.`);
+      return { success: false, count: 0, logMessages: logs };
+    }
+    
+    try {
+      // 1. Fetch All Workers Profile
+      logs.push(`[1/5] Membaca seluruh dokumen profil pegawai (workers collection)...`);
+      const workersRef = collection(db, 'workers');
+      const workersSnap = await getDocs(workersRef);
+      logs.push(`Ditemukan total ${workersSnap.size} dokumen akun dalam database.`);
+      
+      let updateCount = 0;
+      
+      for (const d of workersSnap.docs) {
+        const workerData = d.data() as Worker;
+        const docId = d.id;
+        let needsUpdate = false;
+        const updatedFields: Partial<Worker> = {};
+        
+        // Ensure standard fields exist
+        if (!workerData.role) {
+          updatedFields.role = 'field-operator';
+          needsUpdate = true;
+          logs.push(`- [PERBAIKAN ROLE]: Akun "${workerData.email || docId}" diatur ke peran "field-operator"`);
+        }
+        
+        if (!workerData.password) {
+          updatedFields.password = workerData.employeeId ? workerData.employeeId : '089519451234';
+          needsUpdate = true;
+          logs.push(`- [PERBAIKAN PASSWORD]: Akun "${workerData.email || docId}" menggunakan password default.`);
+        }
+        
+        if (!workerData.regu) {
+          updatedFields.regu = 'REGU-APEX';
+          needsUpdate = true;
+        }
+        
+        if (!workerData.jabatan) {
+          updatedFields.jabatan = workerData.role === 'admin' ? 'Supervisor Lapangan' : 'Pelaksana Lapangan';
+          needsUpdate = true;
+        }
+        
+        if (!workerData.kodeUnit) {
+          updatedFields.kodeUnit = 'UNT-APEX-01';
+          needsUpdate = true;
+        }
+        
+        if (!workerData.region) {
+          updatedFields.region = 'PEKANBARU-DUMAI';
+          needsUpdate = true;
+        }
+        
+        if (!workerData.unitInduk) {
+          updatedFields.unitInduk = 'PT. SHAKA APEX PRO';
+          needsUpdate = true;
+        }
+
+        // Check if there is an active check-in location to sync back to the sitemap live coordinates
+        const presensiRef = collection(db, 'presensi');
+        const qPresensi = query(
+          presensiRef, 
+          where('userId', '==', docId), 
+          orderBy('timestamp', 'desc'), 
+          limit(1)
+        );
+        const presensiSnap = await getDocs(qPresensi).catch(() => null);
+        
+        if (presensiSnap && !presensiSnap.empty) {
+          const latestPresensi = presensiSnap.docs[0].data();
+          if (latestPresensi.lat && latestPresensi.lng) {
+            if (workerData.lastLat !== latestPresensi.lat || workerData.lastLng !== latestPresensi.lng) {
+              updatedFields.lastLat = latestPresensi.lat;
+              updatedFields.lastLng = latestPresensi.lng;
+              updatedFields.lastUpdate = latestPresensi.timestamp || Date.now();
+              needsUpdate = true;
+              logs.push(`- [SINKRONISASI GPS]: Mengambil koordinat presensi terakhir untuk "${workerData.name || workerData.email}"`);
+            }
+          }
+        }
+        
+        if (needsUpdate) {
+          await updateDoc(doc(db, 'workers', docId), updatedFields);
+          updateCount++;
+        }
+      }
+      
+      logs.push(`[2/5] Profil tersinkronisasi: ${updateCount} dokumen diperbarui.`);
+      
+      // 2. Pre-provision Core Master Accounts
+      logs.push(`[3/5] Memverifikasi integritas akun admin utama & pelaksana bawaan...`);
+      const defaultAccounts = [
+          { email: 'developmentshaka@gmail.com', pass: 'Riski1310', name: 'DEV SHAKA', id: 'ADMIN-DEV', role: 'admin' as const },
+          { email: 'admin.shaka01@gmail.com', pass: 'Riski1310', name: 'ADMIN SHAKA 01', id: 'ADMIN-01', role: 'admin' as const },
+          { email: 'riskiprataa3@gmail.com', pass: 'Riski1310', name: 'RISKI PRATAMA', id: 'OWNER-01', role: 'admin' as const },
+          { email: 'pelaksana.shaka@gmail.com', pass: '089519451234', name: 'PELAKSANA SHAKA', id: 'EMP-PEL-001', role: 'field-operator' as const }
+      ];
+      
+      let provisionCount = 0;
+      for (const defAcc of defaultAccounts) {
+        const q = query(collection(db, 'workers'), where('email', '==', defAcc.email));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          await addDoc(collection(db, 'workers'), {
+            employeeId: defAcc.id,
+            name: defAcc.name,
+            email: defAcc.email,
+            password: defAcc.pass,
+            role: defAcc.role,
+            regu: 'REGU-APEX',
+            jabatan: defAcc.role === 'admin' ? 'Supervisor Lapangan' : 'Pelaksana Lapangan',
+            kodeUnit: 'UNT-APEX-01',
+            region: 'PEKANBARU-DUMAI',
+            unitInduk: 'PT. SHAKA APEX PRO',
+            createdAt: Date.now()
+          });
+          provisionCount++;
+          logs.push(`- [PROVISI AKUN]: Membuat akun bawaan "${defAcc.email}" karena belum ada di DB.`);
+        } else {
+          const docId = snap.docs[0].id;
+          const currentData = snap.docs[0].data();
+          if (currentData.password !== defAcc.pass || currentData.role !== defAcc.role) {
+            await updateDoc(doc(db, 'workers', docId), {
+              password: defAcc.pass,
+              role: defAcc.role
+            });
+            provisionCount++;
+            logs.push(`- [PEMBARUAN AKUN]: Menyamakan kredensial & role akun bawaan "${defAcc.email}"`);
+          }
+        }
+      }
+      
+      logs.push(`[3/5] Integritas akun master selesai diselaraskan.`);
+      
+      // 3. Cleanup Old/Stale Sessions
+      logs.push(`[4/5] Memeriksa dan membersihkan sesi login usang (lebih dari 12 jam)...`);
+      const sessionsRef = collection(db, 'active_sessions');
+      const sessionsSnap = await getDocs(sessionsRef);
+      const twelveHoursAgo = Date.now() - 43200000;
+      let sessionCleanupCount = 0;
+      
+      for (const sDoc of sessionsSnap.docs) {
+        const sData = sDoc.data();
+        if (sData.startTime && sData.startTime < twelveHoursAgo) {
+          await deleteDoc(doc(db, 'active_sessions', sDoc.id));
+          sessionCleanupCount++;
+        }
+      }
+      logs.push(`[4/5] Dihapus ${sessionCleanupCount} sesi login gantung/usang.`);
+      
+      // 4. Record Activity Log
+      logs.push(`[5/5] Merekam laporan forensik audit sinkronisasi ganda...`);
+      await logActivity({
+        type: 'audit',
+        action: 'DB_SYNC',
+        title: 'Sinkronisasi Database Cluster Selesai',
+        description: `Sinkronisasi menyeluruh basis data terpadu untuk semua akun selesai. ${updateCount} akun profil diperbaiki, ${provisionCount} akun bawaan disinkronkan, ${sessionCleanupCount} sesi lama dibersihkan.`,
+        projectId: ''
+      });
+      
+      logs.push(`[SUKSES] Seluruh data akun terdaftar berhasil dikonsolidasikan dan diselaraskan secara penuh!`);
+      addNotification('SINKRONISASI AKUN', 'Seluruh data profil akun dan koordinat sitemap terpadu berhasil diselaraskan.', 'success');
+      
+      return {
+        success: true,
+        count: updateCount + provisionCount,
+        logMessages: logs
+      };
+    } catch (err: any) {
+      logs.push(`[ERROR] Gagal melakukan sinkronisasi ganda: ${err.message}`);
+      console.error('Data Sync Error:', err);
+      return { success: false, count: 0, logMessages: logs };
+    }
   };
 
   const value = {
@@ -4805,6 +4999,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addNotification, markNotifAsRead, filteredEntries, totalTonase, totalVolume, lajurData, timeData, exportExcel, 
     exportAllProjectsExcel,
     attendanceLogs, handleCreateAttendance, handleDeleteAttendance, handleDeleteAllAttendance, handleDeleteEntriesByDate,
+    handleSyncAllRegisteredAccounts,
     exportInventoryToExcel, generateAISummary, exportToCSV,
     selectedEntryPhotos, setSelectedEntryPhotos, errors, setErrors, materialType, setMaterialType,
     isCreatingProject, isCreatingTask, isAddingEntry,
