@@ -483,6 +483,32 @@ const DashboardPage: React.FC = () => {
     localStorage.setItem("shaka_active_tab", activeTab);
   }, [activeTab]);
 
+  React.useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    if (!isStandalone) {
+      const shownBefore = sessionStorage.getItem("shaka_pwa_install_hint_shown");
+      if (!shownBefore) {
+        const timer = setTimeout(() => {
+          toast("Sistem Apex Pro CPM dapat di-install!", {
+            description: "Pasang aplikasi ini di Android, iPhone, atau Laptop untuk akses harian cepat, hemat data, dan performa optimal.",
+            duration: 9000,
+            action: {
+              label: "Panduan",
+              onClick: () => {
+                setActiveTab("settings");
+                setTimeout(() => {
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 300);
+              }
+            }
+          });
+          sessionStorage.setItem("shaka_pwa_install_hint_shown", "true");
+        }, 4000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
   const [isTaskModalOpen, setIsTaskModalOpen] = React.useState(false);
   const [notificationPerm, setNotificationPerm] = React.useState<string>(
     typeof Notification !== "undefined" ? Notification.permission : "default",

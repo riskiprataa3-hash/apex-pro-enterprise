@@ -4,8 +4,11 @@ import { User as UserIcon, Lock, CheckCircle2, Download, Mail, ShieldCheck, Smar
 import { useApp } from '../context/AppContext';
 import { updatePassword, getAuth, updateProfile } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { usePWA } from '../hooks/usePWA';
+import { toast } from 'sonner';
 
 export const SettingsView = () => {
+  const pwa = usePWA();
   const { user, userProfile, isAdmin, handleSendEmailVerification, adminAccessCode, updateAdminAccessCode, headerText, handleUpdateHeaderText, announcementText, handleUpdateAnnouncementText, handleUpdateMyProfile } = useApp();
   const isOwnerOrDev = user?.email && ['developmentshaka@gmail.com', 'development.shaka@gmail.com'].includes(user.email.toLowerCase());
   const isTrustedAccount = isOwnerOrDev || (user?.email && /^(admin|pelaksana)\.shaka\d{0,2}@gmail\.com$/.test(user.email.toLowerCase()));
@@ -429,6 +432,94 @@ export const SettingsView = () => {
         )}
       </div>
 
+      {/* PWA Installation Section */}
+      <Card className="p-6 md:p-8 space-y-6 rounded-[2rem] border border-border/50 shadow-sm bg-card hover:shadow-md transition-all">
+        <div className="flex items-center gap-4 mb-2">
+          <div className="bg-emerald-50 dark:bg-emerald-500/10 p-4 rounded-[1.5rem]">
+            <Smartphone className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-black uppercase tracking-tight text-foreground">Instalasi Aplikasi (PWA)</h3>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+              Pasang aplikasi Apex Pro CPM langsung di HP atau laptop Anda untuk akses mandiri cepat
+            </p>
+          </div>
+        </div>
+
+        {pwa.isInstalled ? (
+          <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Aplikasi Sudah Terpasang!
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed font-bold uppercase">
+              Anda saat ini membuka aplikasi CPM langsung melalui mode standalone (aplikasi terpasang). Anda akan menerima update otomatis dan performa optimal.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {pwa.isInstallable && (
+              <div className="p-5 rounded-[1.5rem] bg-indigo-500/10 border border-indigo-500/20 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
+                  <span className="text-[10px] uppercase font-black tracking-widest text-indigo-400">Tersedia Fitur Auto-Install</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Browser Anda mendukung instalasi PWA langsung. Klik tombol di bawah untuk memasang CPM.
+                </p>
+                <Button
+                  onClick={async () => {
+                    const ok = await pwa.triggerInstall();
+                    if (ok) {
+                      toast.success("Aplikasi CPM sedang dipasang!");
+                    } else {
+                      toast.error("Gagal memulai instalasi. Ikuti panduan manual di bawah.");
+                    }
+                  }}
+                  className="w-full h-12 rounded-xl bg-indigo-500 text-white font-black uppercase tracking-widest text-xs hover:scale-[1.02] shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all border-none flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  INSTALL APLIKASI
+                </Button>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">Panduan Download & Instalasi:</span>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-[1.5rem] bg-emerald-500/10 border border-emerald-500/20 space-y-3 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block mb-2">📦 Download APK (Android Android)</span>
+                    <p className="text-[11px] font-medium text-muted-foreground mb-3 leading-relaxed">
+                      Aplikasi ini sudah dipaketkan ke dalam standard PWA modern. Jika Anda ingin menyebarkannya berupa file <b>.APK</b> asli Android:
+                    </p>
+                    <ol className="list-decimal list-inside text-[11px] font-medium text-muted-foreground space-y-2">
+                      <li>Salin URL: <code className="bg-background px-1 py-0.5 rounded text-primary">ais-pre-iujwt22d3xb7qsy6qfi2a2-86446227447.asia-southeast1.run.app</code></li>
+                      <li>Buka situs <a href="https://www.pwabuilder.com/" target="_blank" rel="noreferrer" className="text-emerald-600 font-bold hover:underline">PWABuilder.com</a></li>
+                      <li>Masukkan/Paste URL di atas, klik start, lalu sistem akan otomatis membuat file <b>.APK</b> yang siap Anda unduh & bagikan.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-[1.5rem] bg-muted/60 border border-border/55 space-y-3 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary block mb-2">📱 Manual via Browser (Tanpa APK)</span>
+                    <ol className="list-decimal list-inside text-[11px] font-medium text-muted-foreground space-y-2">
+                      <li>Buka <strong className="text-foreground">Chrome (Android)</strong> atau <strong className="text-foreground">Safari (iOS)</strong></li>
+                      <li>Untuk Android: ketuk opsi <b>⋮</b> lalu <b>Tambahkan ke Layar Utama</b>.</li>
+                      <li>Untuk iOS: ketuk opsi Share lalu <b>Tambahkan ke Layar Utama</b>.</li>
+                      <li>Selesai! Ikon aplikasi akan muncul di beranda dan berjalan secara penuh (Full screen).</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

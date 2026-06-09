@@ -1,0 +1,539 @@
+=== REKAP RANTING 1 ===
+
+📍 KM: Akses Keluar Kandis Selatan (Total: 1 data)
+   1. ID: 07L6V7gf9zHuhhCWKuaT | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 8+000 A/OS (Total: 1 data)
+   1. ID: 01FADOEO74M4nx54RzRw | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: UKURAN: 37x24
+QTY: 1 PCS/QTY
+
+📍 KM: 8+000 B/OS (Total: 2 data)
+   1. ID: 07ff9d8c-9609-4d2b-8f0c-1485bd82a4e3_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+   2. ID: 08739ce6-914f-442d-a0e3-3895187b2935_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 8+600 A/OS (Total: 1 data)
+   1. ID: 01c340b2-879b-4d0d-9b4c-ff115486fe56_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 8+800 A/OS (Total: 1 data)
+   1. ID: 01wkdYjZiofzzNgju5vU | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 8+850 A/OS (Total: 1 data)
+   1. ID: 03GTZrvwH2uawSwptDfd | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 8+900 A/OS (Total: 1 data)
+   1. ID: 04yMi5H9ovVBSSOH59Ug | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 8+950 A/OS (Total: 1 data)
+   1. ID: 06XLX8Z7HUxA6hYqy30B | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 9+000 A/OS (Total: 1 data)
+   1. ID: 06Y3eJhMieUlcD3cMqOT | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 9+200 A/OS (Total: 1 data)
+   1. ID: 06c83vpPCqMxHe36zvRJ | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 12+200 B/OS (Total: 1 data)
+   1. ID: 07de3081-90e3-4503-8c9e-b509895d04d8_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+
+=== REKAP RANTING 2 ===
+
+📍 KM: 44+000 A/OS (Total: 1 data)
+   1. ID: 1e2ece81-38f2-45bc-99a4-57fb9f5743c4_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+010 A/OS (Total: 1 data)
+   1. ID: 1ejwG3EcksRLPUpKhrW0 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non frame 
+
+📍 KM: 44+020 A/OS (Total: 1 data)
+   1. ID: 1fe5f551-86c9-4c38-b938-39e5facfb268_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+030 A/OS (Total: 1 data)
+   1. ID: 1jqecOWSe7SWuaMouGfc_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+040 A/OS (Total: 1 data)
+   1. ID: 1phd164D5vSpqSbprlIz | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+050 A/OS (Total: 1 data)
+   1. ID: 1u9wGDswQPwUd5dX6bvu | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+060 A/OS (Total: 1 data)
+   1. ID: 1vpynanEjlVq1JsF6aYZ | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+070 A/OS (Total: 1 data)
+   1. ID: 1wQwUmnuA5oh7GS4Q3CD | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+080 A/OS (Total: 1 data)
+   1. ID: 201a6a3a-832b-4909-94f3-d4141ac1a4f3_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+090 A/OS (Total: 1 data)
+   1. ID: 2022LyLJhuDK4yGupeuG_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+100 A/OS (Total: 1 data)
+   1. ID: 209516ba-581d-4073-b022-ae0539ae6e96_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+110 A/OS (Total: 1 data)
+   1. ID: 20aa0f51-0592-4470-9a7a-5601b40a69a8_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+120 A/OS (Total: 1 data)
+   1. ID: 2132172f-d53e-44ab-960f-6d74f1b9f93f_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+130 A/OS (Total: 1 data)
+   1. ID: 218192a2-f40a-4654-96b3-44fb7462f3ce_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+140 A/OS (Total: 1 data)
+   1. ID: 21HG7333fnpac5Ovb4Dn_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+150 A/OS (Total: 1 data)
+   1. ID: 2218abd3-abbe-4048-9fc2-01eb6d5fe76a_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+160 A/OS (Total: 1 data)
+   1. ID: 229b7ac0-0d85-4b09-9300-c692b629458d_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+300 B/OS (Total: 1 data)
+   1. ID: 1dJnhC4SAR4o9mfmnC8k | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+310 B/OS (Total: 1 data)
+   1. ID: 1ccb6f4b-cdfd-4fa9-bdef-487fb43e9da2_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+320 B/OS (Total: 1 data)
+   1. ID: 1c7ee504-c8a1-4ea7-9312-65cb83005faa_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+330 B/OS (Total: 1 data)
+   1. ID: 1c61032c-f7df-4c78-a908-64fa2a542917_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+340 B/OS (Total: 1 data)
+   1. ID: 1c0ac3ef-2c4e-4316-80ea-cc5e157c30ae_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+350 B/OS (Total: 1 data)
+   1. ID: 1bca4d91-5949-49b4-8042-17c1bd343677_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+360 B/OS (Total: 1 data)
+   1. ID: 1b726d54-c4aa-457c-be6b-b97fe60e6839_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 44+370 B/OS (Total: 1 data)
+   1. ID: 1abJP7ZchyruyVSJuKKc | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+380 B/OS (Total: 1 data)
+   1. ID: 1YGZaTOvHxOntPTkL0Nf | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Frame
+
+📍 KM: 44+390 B/OS (Total: 1 data)
+   1. ID: 1XCXh0PPQzrfY9P4l2Hb | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 44+400 B/OS (Total: 1 data)
+   1. ID: 1WByZMLeRg7y4IRSkDIO | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 54+980 A/OS (Total: 1 data)
+   1. ID: 22ad74c7-d8f7-4f85-bd5c-42388c7b57d3_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 54+990 A/OS (Total: 1 data)
+   1. ID: 22c69b9d-fa18-43dd-8953-d6659b4558e4_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+000 A/OS (Total: 1 data)
+   1. ID: 22d0e16c-f652-4c27-89b5-f484ad5d6f13_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+010 A/OS (Total: 1 data)
+   1. ID: 232f32bc-68a7-4810-ae37-d621b25ac4f8_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+020 A/OS (Total: 1 data)
+   1. ID: 2339b4af-1950-4d2e-90dd-38d7748e9844_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+030 A/OS (Total: 1 data)
+   1. ID: 23d1133a-b022-4f69-9e81-a9403f69fd94_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+040 A/OS (Total: 1 data)
+   1. ID: 23ddmbxvRqwfu0fVBMbg | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 55+050 A/OS (Total: 1 data)
+   1. ID: 2515d8ad-7a6d-4213-97b3-90c72cff3c60_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+060 A/OS (Total: 1 data)
+   1. ID: 25c607c1-bb9a-4e25-b3a1-c0e107c3a800_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+070 A/OS (Total: 1 data)
+   1. ID: 263ypaHLqAW1ZeaAWJsy | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 55+080 A/OS (Total: 1 data)
+   1. ID: 26914488-96d4-459b-8e9d-0fd609ea26eb_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+090 A/OS (Total: 1 data)
+   1. ID: 26DwbGY9862yI4SQgs7Y | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 55+100 A/OS (Total: 1 data)
+   1. ID: 2789c5c8-cb78-408c-aa1b-f751208a961c_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+110 A/OS (Total: 1 data)
+   1. ID: 27tL23vAG52NrFtxSS0t | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 55+120 A/OS (Total: 1 data)
+   1. ID: 2822618a-fda4-4031-8adf-5022cd566917_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+130 A/OS (Total: 1 data)
+   1. ID: 28BE0fP50zt0R7LYMk1w_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+140 A/OS (Total: 1 data)
+   1. ID: 291980f3-0749-434b-bf0e-a5cce217734c_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 55+150 B/OS (Total: 1 data)
+   1. ID: 1ViD4kQOeU4ywrZszbir | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 55+610 B/OS (Total: 1 data)
+   1. ID: 1UT6tf0R9ht3S4AmC7Vv | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+300 A/OS (Total: 1 data)
+   1. ID: 296171f9-60b7-4163-b994-81774ee9fbbf_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+310 A/OS (Total: 1 data)
+   1. ID: 29RMzDMuoASNdaKcA6yF | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: (NON FRAME)
+
+📍 KM: 60+320 A/OS (Total: 1 data)
+   1. ID: 2BCcgADdme1qXqmGWEdh_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+330 A/OS (Total: 1 data)
+   1. ID: 2HmsrLqpTj8gYiS4cjqN | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+340 A/OS (Total: 1 data)
+   1. ID: 2KtL9khWhfkKgJ8Xbol8 | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+350 A/OS (Total: 1 data)
+   1. ID: 2LoCRxLclhgwIa5xA5Mw | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: UKURAN: 37x24
+QTY: 1 PCS/QTY
+
+📍 KM: 60+360 A/OS (Total: 1 data)
+   1. ID: 2MCEvFJrSjen0pkeCmFV | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+370 A/OS (Total: 1 data)
+   1. ID: 2T4f5jYheW1RW3RUf9E0 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+380 A/OS (Total: 1 data)
+   1. ID: 2TxrJacY55JNjrwYQ9QJ_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+390 A/OS (Total: 1 data)
+   1. ID: 2UImATjvFZSWJx5dCHV9 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+400 A/OS (Total: 1 data)
+   1. ID: 2V8xsiLwtdPVSsd9oNJr | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+410 A/OS (Total: 1 data)
+   1. ID: 2a3f8b36-3ac3-488e-8695-6b77e46bb1e1_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+420 A/OS (Total: 1 data)
+   1. ID: 2a433c21-da5d-4172-98af-83f685663807_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+430 A/OS (Total: 1 data)
+   1. ID: 2a9c112c-0d73-4520-aaad-bdc8ad38df68_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+440 A/OS (Total: 1 data)
+   1. ID: 2ad6b6d9-4805-4585-91a4-0abe280a6e36_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+450 A/OS (Total: 1 data)
+   1. ID: 2ae9397c-a5e7-4ccd-a061-4379cb838027_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+460 A/OS (Total: 1 data)
+   1. ID: 2b90993b-51d4-4dbe-aa43-06bdedbf9b7c_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+470 A/OS (Total: 1 data)
+   1. ID: 2bf9de91-386d-407c-8984-205489663a1a_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+480 A/OS (Total: 1 data)
+   1. ID: 2c40f3b8-d1f8-47af-b1fb-9d952adcd5b2_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+490 A/OS (Total: 1 data)
+   1. ID: 2c63bee3-b8ec-4a7a-b32b-b5e99d26760e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+500 A/OS (Total: 1 data)
+   1. ID: 2cc1cc87-010e-49cd-a4e4-4f3e1be243fd_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+510 A/OS (Total: 1 data)
+   1. ID: 2d360486-6055-4544-a571-581a8e3ff2d2_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+520 A/OS (Total: 1 data)
+   1. ID: 2d6aafee-1304-4537-9f90-3baf691eb905_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+530 A/OS (Total: 1 data)
+   1. ID: 2dbO6wSUgSKWULXq3tdk_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+540 A/OS (Total: 1 data)
+   1. ID: 2dc1e481-4cad-424f-9e19-7a37962b537b_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+550 A/OS (Total: 1 data)
+   1. ID: 2ee6ad2f-8c70-49ba-8875-9ee2ea2425c4_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+560 A/OS (Total: 1 data)
+   1. ID: 2f68a3d8-4c43-4986-bf4a-49e016606d46_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+570 A/OS (Total: 1 data)
+   1. ID: 2hHguCMd0VqkqZvyYgvr | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+580 A/OS (Total: 1 data)
+   1. ID: 2k0tcq8ccd3xCaTZ9cDa_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+590 A/OS (Total: 1 data)
+   1. ID: 2mfJfFGmOv8oFdlACJZl_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+600 A/OS (Total: 1 data)
+   1. ID: 2nr9PgdLqrWu3KgaAsml_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+610 A/OS (Total: 1 data)
+   1. ID: 2wLXiZKOaKysJyXUjyaL | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+620 A/OS (Total: 1 data)
+   1. ID: 2yS1HpRFVW8IF6897ZvS | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 60+630 A/OS (Total: 1 data)
+   1. ID: 30c67e84-dbb1-426f-aa61-5555dcd3f6e6_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+640 A/OS (Total: 1 data)
+   1. ID: 30d7cce4-b2d1-421d-a742-49866848c662_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+650 A/OS (Total: 1 data)
+   1. ID: 30ffcd82-9fd9-4026-995c-1214a44a5591_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+660 A/OS (Total: 1 data)
+   1. ID: 3109ff70-b5c0-41ec-add7-66ecefc9274e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+670 A/OS (Total: 1 data)
+   1. ID: 31fee7ba-8be5-4e3f-aae4-e0b9db5a627a_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+680 A/OS (Total: 1 data)
+   1. ID: 326a4248-24f1-4061-b55f-b9131f467e5d_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 60+690 A/OS (Total: 1 data)
+   1. ID: 3289dbce-6670-4d32-947b-b25575b544d6_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+060 B/OS (Total: 1 data)
+   1. ID: 1Mv1cSq0jQpdkjbf7mbQ | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+070 B/OS (Total: 1 data)
+   1. ID: 1MhSSSVrhwRGAGtYB3yO | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+080 B/OS (Total: 1 data)
+   1. ID: 1Lt2BrA6AeZpBdwvlimB | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+090 B/OS (Total: 1 data)
+   1. ID: 1H0Smbs8BbarK27eMKqm | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+100 B/OS (Total: 1 data)
+   1. ID: 19nYfzwNTFuCaEP3PskS | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+110 B/OS (Total: 1 data)
+   1. ID: 199e91c0-21fc-459a-a819-11e908671e5f_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+120 B/OS (Total: 1 data)
+   1. ID: 188xGtnRCvpzlSVMtF7A | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+130 B/OS (Total: 1 data)
+   1. ID: 177ef64e-f587-42ff-925a-27d361c73ebd_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+140 B/OS (Total: 1 data)
+   1. ID: 16da7124-f3c8-461e-9851-236da3c58c7a_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+150 B/OS (Total: 1 data)
+   1. ID: 15ffbfb0-0491-4a72-946c-e25254923d94_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+160 B/OS (Total: 1 data)
+   1. ID: 15930ca3-4880-4c31-93dd-f801bea8f8af_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+170 B/OS (Total: 1 data)
+   1. ID: 15805382-f6be-4ff9-b24f-f32a2fe7b85e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+180 B/OS (Total: 1 data)
+   1. ID: 1565a673-10c4-4d17-9c36-8d2df1de4848_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+190 B/OS (Total: 1 data)
+   1. ID: 14JBJGY1gFCjPqjUBEgy | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non frame 
+
+📍 KM: 61+200 B/OS (Total: 1 data)
+   1. ID: 146PTRxK1ukwbtsUluuA_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+210 B/OS (Total: 1 data)
+   1. ID: 14667a7c-9edc-4b91-bfc7-b3273fdf1ecf_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+220 B/OS (Total: 1 data)
+   1. ID: 14620a8f-6c9e-40b9-931a-82e10a6987c1_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+230 B/OS (Total: 1 data)
+   1. ID: 1310ce17-fcb9-40a4-853e-fb943725ae07_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+240 B/OS (Total: 1 data)
+   1. ID: 12dcb415-f381-438c-b661-27d99d66a453_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+250 B/OS (Total: 1 data)
+   1. ID: 0x8PxR6q3qfRT9m4cCQZ | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+260 B/OS (Total: 1 data)
+   1. ID: 0v1PmCfZsIbpExqW9coe | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+270 B/OS (Total: 1 data)
+   1. ID: 0nt6rsYitSifAC7PG068 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+280 B/OS (Total: 1 data)
+   1. ID: 0mrHGUHnvSPucQaz46n9_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+290 B/OS (Total: 1 data)
+   1. ID: 0fd861a9-49a2-4ac3-b8d8-ab6833aa02f3_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+300 B/OS (Total: 1 data)
+   1. ID: 0fb1ae66-9735-4024-aff9-84ce4c46e5c7_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+310 B/OS (Total: 1 data)
+   1. ID: 0e632489-c384-4037-8ec3-69f491c7d6a9_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+320 B/OS (Total: 1 data)
+   1. ID: 0e11f57e-0912-46bc-8448-2e2bed6d9aa4_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+330 B/OS (Total: 1 data)
+   1. ID: 0dfff6d9-8b30-4e4f-ab7e-52d77f1feba7_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+340 B/OS (Total: 1 data)
+   1. ID: 0db334e8-8397-40dd-b87c-8f67a4ff4a19_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+350 B/OS (Total: 1 data)
+   1. ID: 0c0356c1-575d-417a-bb28-80eeb5746360_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+360 B/OS (Total: 1 data)
+   1. ID: 0a0a930a-ce03-4309-85fe-483e4255ae20_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 61+370 B/OS (Total: 1 data)
+   1. ID: 0WrY6lgVwlJJx0FLxace | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Frame
+
+📍 KM: 61+380 B/OS (Total: 1 data)
+   1. ID: 0GstS3mmXiWYhf32WQUq | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 61+390 B/OS (Total: 1 data)
+   1. ID: 0FFNcOjnXmb8U57s8Vfx | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: (NON FRAME)
+
+📍 KM: 61+400 B/OS (Total: 1 data)
+   1. ID: 0E669gnjIxOixtqkUpJw | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+400 A/OS (Total: 1 data)
+   1. ID: 32L4BBAZsr0Tq2v6X7mo | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non frame 
+
+📍 KM: 74+410 A/OS (Total: 1 data)
+   1. ID: 32d672b6-a063-4a98-8a5e-37d699641822_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+420 A/OS (Total: 1 data)
+   1. ID: 32igHWjDR1B23SoNrgaK_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+430 A/OS (Total: 1 data)
+   1. ID: 33RHS1fGiZtCGyUyIOJq_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+440 A/OS (Total: 1 data)
+   1. ID: 3572c2f8-251f-401a-900d-bebe9163a2ba_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+450 A/OS (Total: 1 data)
+   1. ID: 36c6dc50-dbc1-4bbf-a2b8-d202ab0e529e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+460 A/OS (Total: 1 data)
+   1. ID: 37a3d893-3eb2-4df1-9b51-9090b192646a_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+470 A/OS (Total: 1 data)
+   1. ID: 39c524df-313a-4511-83dc-54ba05e16683_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+480 A/OS (Total: 1 data)
+   1. ID: 39f8cc4f-3157-4b17-9127-943bb6c5a29d_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+490 A/OS (Total: 1 data)
+   1. ID: 3CMBjJKQJIHC5oFeW54K_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+500 A/OS (Total: 1 data)
+   1. ID: 3DNKor4PRazxKem7xGqL | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+510 A/OS (Total: 1 data)
+   1. ID: 3E2ulFle85bx3qMalrJ9_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+520 A/OS (Total: 1 data)
+   1. ID: 3EgoRwfYfYEbKMZEwgsC | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+530 A/OS (Total: 1 data)
+   1. ID: 3JixvcHO3XS3NiIDGZiw | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+540 A/OS (Total: 1 data)
+   1. ID: 3OkLXu5hN4EzbXd3Esdt | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+550 A/OS (Total: 1 data)
+   1. ID: 3Q3OWiDb00uhC6YRFalh | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+560 A/OS (Total: 1 data)
+   1. ID: 3URhUQipjKlXHkzj11AX | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+570 A/OS (Total: 1 data)
+   1. ID: 3Z5neV1vSC47T9arXatQ | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+580 A/OS (Total: 1 data)
+   1. ID: 3a4461eb-1907-4e6e-800e-100d75907a5e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+590 A/OS (Total: 1 data)
+   1. ID: 3b42f4ba-517c-4d8a-93b1-c45792393671_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+600 A/OS (Total: 1 data)
+   1. ID: 3be356b5-6740-42c1-9c11-699f34a56ff3_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+610 A/OS (Total: 1 data)
+   1. ID: 3cdccb88-eca7-4595-a5bc-ddca5eb5d989_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+620 A/OS (Total: 1 data)
+   1. ID: 3dnOyGSEbmxF5izbQQm3 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non frame 
+
+📍 KM: 74+630 A/OS (Total: 1 data)
+   1. ID: 3ec6f0c3-a059-42c5-8857-8969ab57685f_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+640 A/OS (Total: 1 data)
+   1. ID: 3edcf2ee-9e8e-4c4c-9fff-8bc9faf60289_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+650 A/OS (Total: 1 data)
+   1. ID: 3f30f827-912c-4295-8ff8-9453be655092 | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+660 A/OS (Total: 1 data)
+   1. ID: 3fc5ba2f-31f8-4f3e-b140-2f93a7f55322_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+670 A/OS (Total: 1 data)
+   1. ID: 3iZxEXlJFdxJPE8aOW7G_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+680 A/OS (Total: 1 data)
+   1. ID: 3oF9JDOv23O96nDRrrSM_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+690 A/OS (Total: 1 data)
+   1. ID: 3oxsTmPcvQopAvAKgc7Z_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+700 A/OS (Total: 1 data)
+   1. ID: 3qfgsEFBa0qzP397grAr | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+710 A/OS (Total: 1 data)
+   1. ID: 3s3AL2Wkt3nz36qneJO8 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: non frame
+
+📍 KM: 74+720 A/OS (Total: 1 data)
+   1. ID: 3znnTwYHEmfGi7gcON78 | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non-Frame
+
+📍 KM: 74+730 A/OS (Total: 1 data)
+   1. ID: 4009df5d-82a8-4fc2-b9e7-53c331ee8c2b_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+740 A/OS (Total: 1 data)
+   1. ID: 402a2208-c465-4e01-bf9d-aa030ddcb2ae_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+750 A/OS (Total: 1 data)
+   1. ID: 40PV3OgCUjzRTOvrWZM5_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+760 A/OS (Total: 1 data)
+   1. ID: 41c03cec-f647-4a52-9cea-33810da52830_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+770 A/OS (Total: 1 data)
+   1. ID: 41p1HgKW9nXjSwFdv9p5_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+780 A/OS (Total: 1 data)
+   1. ID: 420e5870-d923-482b-a31c-c758ed53e922_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+790 A/OS (Total: 1 data)
+   1. ID: 431457c4-4701-411d-9570-6ea2b9956342_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+800 B/OS (Total: 2 data)
+   1. ID: 0Bl9ryJr91rCeB6qYg9E | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: Non frame 
+   2. ID: 0Cts6myMLdvW8iRVvMvS | Lajur: A/OS | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+800 A/OS (Total: 1 data)
+   1. ID: 4336adff-95c6-475e-b22d-64da6460b44e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+810 A/OS (Total: 1 data)
+   1. ID: 4345fd4c-c45e-4c00-a709-92c02c35286e_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
+
+📍 KM: 74+820 A/OS (Total: 1 data)
+   1. ID: 4347784f-4c6e-45c5-aa6c-df8686491056_en | Lajur: - | Proyek: PEKANBARU-DUMAI | Catatan: -
